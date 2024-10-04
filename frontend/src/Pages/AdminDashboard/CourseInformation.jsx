@@ -14,6 +14,8 @@ const CourseInformation = () => {
 
   const [subjectName, setSubjectName] = useState("")
   const [subjectCode, setSubjectCode] = useState("")
+  const [subjectSessions, setSubjectSessions] = useState("")
+  const [department, setDepartment] = useState("")
 
   const [studentName, setStudentName] = useState("")
   const [rollNumber, setRollNumber] = useState("")
@@ -26,6 +28,7 @@ const CourseInformation = () => {
   const [teacherName, setTeacherName] = useState("")
   const [teacherSubject, setTeacherSubject] = useState("")
   const [teacherEmail, setTeacherEmail] = useState("")
+  const [teacherDepartment, setTeacherDepartment] = useState("")
 
   const [courseData, setCourseData] = useState([]);
 
@@ -48,8 +51,8 @@ const CourseInformation = () => {
 
 
   // handling student data when click on view student
-  const handleStudentRoute = (studentTodo) => {
-    navigate('/admin/students', { state: { courseId, courseName, studentTodo } })
+  const handleStudentRoute = (studentTodo, subjectTodo) => {
+    navigate('/admin/students', { state: { courseId, courseName, studentTodo, subjectTodo } })
 
   }
 
@@ -60,7 +63,7 @@ const CourseInformation = () => {
 
   // Add Subject data
   const addSubjectData = () => {
-    const addSubjectData = [...subjectTodos, { id: Date.now(), courseId: courseId, text: { subjectName: subjectName, subjectCode: subjectCode } }]
+    const addSubjectData = [...subjectTodos, { id: Date.now(), courseId: courseId, text: { subjectName: subjectName, subjectCode: subjectCode, subjectSessions: subjectSessions, department: department } }]
     setSubjectTodos(addSubjectData)
     localStorage.setItem("subjectTodo", JSON.stringify(addSubjectData))
     setSubjectName("")
@@ -100,12 +103,13 @@ const CourseInformation = () => {
 
   // Add Teacher Data
   const addTeacherData = () => {
-    const addTeacherData = [...teacherTodo, { id: Date.now(), courseId: courseId, text: { teacherName: teacherName, teacherSubject: teacherSubject, teacherEmail: teacherEmail } }]
+    const addTeacherData = [...teacherTodo, { id: Date.now(), courseId: courseId, text: { teacherName: teacherName, teacherSubject: teacherSubject, teacherEmail: teacherEmail, teacherDepartment: teacherDepartment } }]
     setTeacherTodo(addTeacherData)
     localStorage.setItem("teacherTodo", JSON.stringify(addTeacherData))
     setTeacherEmail("")
     setTeacherName("")
     setTeacherSubject("")
+    setTeacherDepartment("")
   }
 
   // Delete the teacher data
@@ -196,6 +200,8 @@ const CourseInformation = () => {
                 <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
                 <input required type="text" name='subject name' placeholder='Subject Name*' value={subjectName} onChange={(e) => setSubjectName(e.target.value)} className={`rounded-lg font-5xl mt-5 mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
                 <input required type="text" name='subject code' placeholder='Subject Code*' value={subjectCode} onChange={(e) => setSubjectCode(e.target.value)} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
+                <input required type="text" name='subject sessions' placeholder='Subject Sessions*' value={subjectSessions} onChange={(e) => setSubjectSessions(e.target.value)} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
+                <input required type="text" name='subject department' placeholder='Subject department*' value={department} onChange={(e) => setDepartment(e.target.value)} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-12 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>
                   <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                 </svg>
@@ -210,6 +216,8 @@ const CourseInformation = () => {
               <div className='bg-black text-white px-5 py-5 pr-20 flex justify-between '>
                 <span>Subject Name</span>
                 <span>Subject Code</span>
+                <span>Sessions</span>
+                <span className='mx-5'>Department</span>
                 <span>Action</span>
               </div>
               <ul className={`text-black`}>
@@ -218,9 +226,10 @@ const CourseInformation = () => {
                     <li className={`flex justify-between text-center mx-auto mt-3 px-7`} key={subjectTodo.id}>
                       <span className=''>{subjectTodo.text.subjectName}</span>
                       <span className=''>{subjectTodo.text.subjectCode}</span>
+                      <span className=''>{subjectTodo.text.subjectSessions}</span>
+                      <span className=''>{subjectTodo.text.department}</span>
                       <div className='flex'>
                         <button className='bg-zinc-900 hover:bg-zinc-800 text-white py-1 px-4 mx-3 rounded-lg' onClick={() => handleSubjectRoute(subjectTodo)}> View </button>
-                        {/* <button onClick={() => handleEditSubject(subjectTodo)}><Edit className="h-9 w-9 text-red -my-1" /></button> */}
                         <button onClick={() => deleteSubjectTodo(subjectTodo.id)}><Trash2 color="#ff0000" className="h-9 w-9 text-red -my-1 mx-4" /></button>
                       </div>
                     </li>
@@ -236,8 +245,6 @@ const CourseInformation = () => {
 
         {activeTab === "students" && (
           <>
-
-
             <div className={`modal backdrop-blur-3xl text-black flex flex-col justify-around  border-black-900 shadow-2xl shadow-black-900 mx-auto w-96 mt-6  md:px-0 `}>
               <div className={`${isModalOpen ? "hidden" : "block"} px-10 mt-10 border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
                 <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
@@ -295,6 +302,8 @@ const CourseInformation = () => {
                 <input required type="text" name='teacherName' id='teacherName' placeholder='Teacher Name*' value={teacherName} onChange={(e) => setTeacherName(e.target.value)} className={`rounded-lg font-5xl mt-1 mb-3 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
                 <label htmlFor="teacherSubject">Teacher Subject*</label>
                 <input required type="text" name='teacherSubject' id='teacherSubject' placeholder='Teacher Subject*' value={teacherSubject} onChange={(e) => setTeacherSubject(e.target.value)} className={`rounded-lg font-5xl mb-3 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
+                <label htmlFor="teacherDepartment">Department*</label>
+                <input required type="text" name='teacherDepartment' id='teacherDepartment' placeholder='Teacher Deparment*' value={teacherDepartment} onChange={(e) => setTeacherDepartment(e.target.value)} className={`rounded-lg font-5xl mb-3 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-0 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>
                   <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                 </svg>
@@ -309,6 +318,7 @@ const CourseInformation = () => {
                 <span>Teacher Name</span>
                 <span>Teacher Subject</span>
                 <span>Teacher Email</span>
+                <span>Department</span>
                 <span>Action</span>
               </div>
               <ul className={`text-black`}>
@@ -318,6 +328,7 @@ const CourseInformation = () => {
                       <span className=''>{teacherTodo.text.teacherName}</span>
                       <span className=''>{teacherTodo.text.teacherSubject}</span>
                       <span className=''>{teacherTodo.text.teacherEmail}</span>
+                      <span className=''>{teacherTodo.text.teacherDepartment}</span>
                       <div className='flex'>
                         <button onClick={() => deleteTeacherData(teacherTodo.id)}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-9 text-red-700 -mx-20">
                           <path d="M10.375 2.25a4.125 4.125 0 1 0 0 8.25 4.125 4.125 0 0 0 0-8.25ZM10.375 12a7.125 7.125 0 0 0-7.124 7.247.75.75 0 0 0 .363.63 13.067 13.067 0 0 0 6.761 1.873c2.472 0 4.786-.684 6.76-1.873a.75.75 0 0 0 .364-.63l.001-.12v-.002A7.125 7.125 0 0 0 10.375 12ZM16 9.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" />

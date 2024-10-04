@@ -8,6 +8,7 @@ const SubjectInformation = () => {
   const [todoLength, setTodoLength] = useState(0);
   const [subjectData, setSubjectData] = useState([]);
   const [showStudentData, setShowStudentData] = useState([])
+  const [attendanceTodo, setAttendanceTodo] = useState([]);
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -16,15 +17,18 @@ const SubjectInformation = () => {
   console.log("courseId in subject: ", courseId)
   console.log("courseName in subject: ", courseName)
   console.log("showStudentData in subject: ", showStudentData)
-  
+
   const handleTabChange = (tab) => setActiveTab(tab)
 
   //handle view button when click on view it directs the dashboard student 
   const handleStudentRoute = (studentTodo) => {
-    console.log("studentTodo : ", studentTodo)
-    navigate('/admin/students', { state: { courseId, courseName, studentTodo } })
+    const attendanceData = attendanceTodo.filter(att => att.studentId === student.studentId);
+    navigate('/admin/students', { state: { courseId, courseName, studentTodo, showStudentData: studentTodo, attendanceData } })
   }
 
+  const handleAttendence = (student) => {
+    navigate("/admin/subjectInformation/attendence", { state: { courseId, showStudentData: student } })
+  }
   // For showing the number of students 
   useEffect(() => {
     const storedData = localStorage.getItem('studentTodo');
@@ -55,6 +59,12 @@ const SubjectInformation = () => {
           rollNumber: parsedData.text.rollNumber
         }]);
       }
+    }
+
+    const storedAttendance = localStorage.getItem("attendanceTodo");
+    if (storedAttendance) {
+      const parsedAttendance = JSON.parse(storedAttendance);
+      setAttendanceTodo(parsedAttendance); // Store the data in state
     }
   }, []);
 
@@ -113,7 +123,9 @@ const SubjectInformation = () => {
                       <td>
                         <div className='-mx-5'>
                           <button className={`bg-cyan-500 hover:bg-cyan-600 px-3 py-2  rounded-lg cursor-pointer`} onClick={() => handleStudentRoute(student)}>View</button>
-                          <button className={`bg-yellow-500 hover:bg-cyan-600 px-3 py-2 mx-3 rounded-lg cursor-pointer`}>Attendence</button>
+                          
+                          <button className={`bg-yellow-500 hover:bg-cyan-600 px-3 py-2 mx-3 rounded-lg cursor-pointer`} onClick={() => handleAttendence(student)}>Take Attendence</button>
+                         
                         </div>
                       </td>
                     </tr>

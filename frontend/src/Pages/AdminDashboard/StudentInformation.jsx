@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom'
 const StudentInformation = () => {
   const [activeTab, setActiveTab] = useState("details")
   const location = useLocation()
-  const {courseName, studentTodo, } = location.state || {}
+  const {courseName, studentTodo } = location.state || {}
   const handleTabChange = (tab) => setActiveTab(tab)
 
   return (
@@ -21,8 +21,8 @@ const StudentInformation = () => {
         <div>
           {activeTab === "details" && (<div className='flex flex-col text-3xl my-10 mx-20 tracking-wider'>
             <span className='tracking-wide mb-4'>Course: {courseName || "N/A"}</span>
-            <span className='tracking-wide mb-4'>Subject Name: {studentTodo?.text.subjectName || "N/A"}</span>
-            <span className='tracking-wide mb-4'>Subject Code: {studentTodo?.text.subjectCode || "N/A"}</span>
+            <span className='tracking-wide mb-4'>Student Name: {studentTodo?.text.subjectName || "N/A"}</span>
+            <span className='tracking-wide mb-4'>Roll Number: {studentTodo?.text.subjectCode || "N/A"}</span>
             <span className='tracking-wide mb-4'>Number of Student: {studentTodo.id || "N/A"}</span>
           </div>)}
         </div>

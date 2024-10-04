@@ -12,6 +12,8 @@ import AdminSubject from './Pages/AdminDashboard/AdminSubject';
 import SubjectInformation from './Pages/AdminDashboard/SubjectInformation';
 import AdminStudent from './Pages/AdminDashboard/AdminStudent';
 import Notice from './Pages/AdminDashboard/Notice';
+import AdminTeacher from './Pages/AdminDashboard/AdminTeacher';
+import StudentAttendence from './Pages/AdminDashboard/StudentAttendence';
 
 const App = () => {
   return (
@@ -29,14 +31,14 @@ const App = () => {
             <Route path='home' element={<AdminHome />} />
             <Route path='notices' element={<Notice />} />
 
-
             <Route path='courses' element={<AdminCourses />} />
             <Route path='courses/information' element={<CourseInformation />}/>
             <Route path='subjects' element={<AdminSubject />}/>
             <Route path='courses/information/subjectInformation' element={<SubjectInformation />}/>
+            <Route path='subjectInformation/attendence' element={<StudentAttendence />}/>
 
             <Route path='students' element={<AdminStudent />}/>
-            {/* <Route path='students/studentInformation' element/> */}
+            <Route path='teachers' element={<AdminTeacher />} />
           </Route>
 
         </Routes>
