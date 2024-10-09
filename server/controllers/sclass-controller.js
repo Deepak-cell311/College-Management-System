@@ -27,7 +27,7 @@ const sclassCreate = async (req, res) => {
 
 const sclassList = async (req, res) => {
     try {
-        let sclasses = await Sclass.find({ college: req.params.id })
+        let sclasses = await Sclass.find()
         if (sclasses.length > 0) {
             res.send(sclasses)
         } else {
@@ -42,7 +42,6 @@ const getSclassDetail = async (req, res) => {
     try {
         let sclass = await Sclass.findById(req.params.id);
         if (sclass) {
-            sclass = await sclass.populate("college", "collegeName")
             res.send(sclass);
         }
         else {
@@ -51,7 +50,7 @@ const getSclassDetail = async (req, res) => {
     } catch (err) {
         res.status(500).json(err);
     }
-}
+};
 
 const getSclassStudents = async (req, res) => {
     try {
@@ -67,7 +66,7 @@ const getSclassStudents = async (req, res) => {
     } catch (err) {
         res.status(500).json(err);
     }
-}
+};
 
 const deleteSclass = async (req, res) => {
     try {
@@ -82,11 +81,11 @@ const deleteSclass = async (req, res) => {
     } catch (error) {
         res.status(500).json(error);
     }
-}
+};
 
 const deleteSclasses = async (req, res) => {
     try {
-        const deletedClasses = await Sclass.deleteMany({ college: req.params.id });
+        const deletedClasses = await Sclass.deleteMany();
         if (deletedClasses.deletedCount === 0) {
             return res.send({ message: "No classes found to delete" });
         }
@@ -97,7 +96,6 @@ const deleteSclasses = async (req, res) => {
     } catch (error) {
         res.status(500).json(error);
     }
-}
-
+};
 
 module.exports = { sclassCreate, sclassList, deleteSclass, deleteSclasses, getSclassDetail, getSclassStudents };

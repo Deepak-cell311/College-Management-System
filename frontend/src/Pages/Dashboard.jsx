@@ -7,7 +7,7 @@ const Dashboard = () => {
         navigate("/adminLogin")
     }
     const handleStudentLogin = (name) => {
-        navigate("/studentLogin")
+        navigate("/student")
     }
     return (
         <>
