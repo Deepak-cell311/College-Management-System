@@ -1,15 +1,18 @@
 const Subject = require('../models/subjectSchema.js');
 const Teacher = require('../models/teacherSchema.js');
 const Student = require('../models/studentSchema.js');
+const courseId = require('../middleware/setCourseId.js')
 
 const subjectCreate = async (req, res) => {
     try {
-        const {subName,subCode,sessions,sclassName} =req.body;
-        const existingSubjectBySubCode = await Subject.findOne({subCode});
+        const { subName, subCode, sessions, sclassName } = req.body;
+        const courseId = req.courseId; 
+
+        const existingSubjectBySubCode = await Subject.findOne({ subCode });
         if (existingSubjectBySubCode) {
             res.send({ message: 'Sorry this subcode must be unique as it already exists' });
         } else {
-            const newSubject = new Subject({subName,subCode,sessions,sclassName});
+            const newSubject = new Subject({ subName, subCode, sessions, sclassName });
             const result = await newSubject.save();
             res.send(result);
         }

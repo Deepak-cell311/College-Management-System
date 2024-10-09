@@ -47,7 +47,6 @@ const Notice = () => {
         }
     }
 
-
     // Fetching all the notices from the database
     const fetchNoticeData = async () => {
         try {
@@ -68,8 +67,7 @@ const Notice = () => {
             }
         } catch (error) {
             toast.error(error);
-        } finally {
-        }
+        } 
     };
 
     // Delete notice from the queue via id

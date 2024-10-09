@@ -34,9 +34,10 @@ const AdminCourses = () => {
   }
 
   const handleInformationRoute = (course) => {
+    console.log("course ding ding: ",course)
     navigate("/admin/courses/information", {
       state: {
-        courseId: course.id,
+        courseId: course._id,
         courseName: course.text,
       }
     });
@@ -56,7 +57,7 @@ const AdminCourses = () => {
         setCourseTodo(courseTodoData)
         localStorage.setItem("courseTodo", JSON.stringify(courseTodoData))
         reset()
-        toast.success("Course Added Successfully")
+        toast.success("Course added successfully")
       } else {
         toast.error(response.data.message)
       }
@@ -64,7 +65,7 @@ const AdminCourses = () => {
       toast.error(error)
     }
   }
-  console.log(courseTodo)
+  console.log("courseTodo in information: ", courseTodo)
 
   // Show the List of courses
   const fetchCourses = async () => {
