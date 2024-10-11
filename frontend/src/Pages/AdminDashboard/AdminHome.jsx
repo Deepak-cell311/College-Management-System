@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import student from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/student.png"
-import teacher from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/teachers.png"
-import courses from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/courses.png"
-import fee from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/fee.png"
+import student from "../../assets/student.png"
+import teacher from "../../assets/teachers.png"
+import courses from "../../assets/courses.png"
+import fee from "../../assets/fee.png"
 import { Link } from 'react-router-dom'
 import {Link as Notice} from 'lucide-react'
 

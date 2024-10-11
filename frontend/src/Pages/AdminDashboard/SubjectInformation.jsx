@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import student from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/student.png"
-import teacher from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/teachers.png"
+import student from "../../assets/student.png"
+import teacher from "../../assets/teachers.png"
 
 const SubjectInformation = () => {
   const [activeTab, setActiveTab] = useState("details")
@@ -20,7 +20,6 @@ const SubjectInformation = () => {
 
   const handleTabChange = (tab) => setActiveTab(tab)
 
-  //handle view button when click on view it directs the dashboard student 
   const handleStudentRoute = (studentTodo) => {
     const attendanceData = attendanceTodo.filter(att => att.studentId === student.studentId);
     navigate('/admin/students', { state: { courseId, courseName, studentTodo, showStudentData: studentTodo, attendanceData } })
@@ -29,7 +28,6 @@ const SubjectInformation = () => {
   const handleAttendence = (student) => {
     navigate("/admin/subjectInformation/attendence", { state: { courseId, showStudentData: student } })
   }
-  // For showing the number of students 
   useEffect(() => {
     const storedData = localStorage.getItem('studentTodo');
     if (storedData) {
@@ -39,7 +37,6 @@ const SubjectInformation = () => {
     }
   }, []);
 
-  // For subject to add name and roll number to the table
   useEffect(() => {
     const studentData = localStorage.getItem("studentTodo");
 

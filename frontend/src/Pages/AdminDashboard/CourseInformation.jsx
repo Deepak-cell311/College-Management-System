@@ -43,15 +43,7 @@ const CourseInformation = () => {
   const navigate = useNavigate()
   const location = useLocation();
   const { courseId, courseName } = location.state || {};
-
-
-  const {
-    handleSubmit,
-    register,
-    reset,
-    // formstate: { error }
-  } = useForm()
-
+  const { handleSubmit,register,reset } = useForm()
   const onError = (errors) => {
     Object.values(errors).forEach(
       error => { toast.error(error.message) }
@@ -60,13 +52,11 @@ const CourseInformation = () => {
 
   const handleTabChange = (tab) => setActiveTab(tab)
 
-  //handling subject data when click on view subject
   const handleSubjectRoute = (subjectTodo) => {
     navigate('/admin/courses/information/subjectInformation', { state: { courseId, courseName, subjectTodo } })
   }
 
 
-  // handling student data when click on view student
   const handleStudentRoute = (studentTodo, subjectTodo) => {
     navigate('/admin/students', { state: { courseId, courseName, studentTodo, subjectTodo } })
 
@@ -75,49 +65,45 @@ const CourseInformation = () => {
   const handleFormToggle = () => {
     setIsModalOpen(!isModalOpen)
   }
+
+
+
   /* ===========================================COMPLETED================================================================= */
   // Add Subject
   const addSubjectData = async (data) => {
     try {
-      const storedCourseId = localStorage.getItem("courseTodo");
-      const response = await axios.post("http://localhost:5000/Subject/SubjectCreate", {
-        subName: data.subName,
-        subCode: data.subCode,
-        sessions: data.sessions,
-        subclassName: data.subclassName,
-        courseId: storedCourseId ? JSON.parse(storedCourseId) : null
-      })
-      console.log("response.data: ", response.data)
-      if (response.data) {
-        const { _id, subName, subCode, sessions, subclassName } = response.data
-        const addSubjectTodo = [...subjectTodos, { _id, courseId: courseId, text: { subName, subCode, sessions, subclassName: courseID } }]
-        setSubjectTodos(addSubjectTodo)
-        localStorage.setItem("subjectTodo", JSON.stringify(addSubjectTodo))
-        reset()
-        toast.success("Subject added successfully")
-      }
+      const response = await axios.post(`http://localhost:5000/Subject/SubjectCreate/${courseId}`, {
+        ...data,
+        courseId, // Pass courseId here if necessary
+      });
+      const { _id, subName, subCode, sessions } = response.data;
+      setSubjectTodos(previous => [
+        ...previous,
+        { _id, courseId, text: { subName, subCode, sessions } },
+      ]);
+      reset();
+      toast.success("Subject added successfully");
     } catch (error) {
-      console.error('Error details:', error.response?.data || error.message);
       toast.error(error.response?.data?.message || "An error occurred while adding the subject");
     }
-  }
-
+  };
+  
   // Fetch data from the database
   const fetchSubjectData = async () => {
     try {
       const response = await axios.get('http://localhost:5000/Subject/AllSubjects');
+      console.log("Response data: ", response.data); // Log the response
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           _id: subject._id,
+          courseId: subject.sclassName, // Adjust this to the correct property
           text: {
-            subclassName: subject.courseId,
             subName: subject.subName,
             subCode: subject.subCode,
-            sessions: subject.sessions
-          }
+            sessions: subject.sessions,
+          },
         }));
         setSubjectTodos(formattedSubjects);
-        localStorage.setItem('subjectTodo', JSON.stringify(formattedSubjects));
       } else {
         toast.info(response.data.message);
       }
@@ -125,60 +111,97 @@ const CourseInformation = () => {
       toast.error(error.response?.data?.message || "An error occurred while fetching subjects");
     }
   };
-
-
-  // filter subject according to the course 
-  const filterSubject = subjectTodos.filter((subject) => subject.courseId === courseId)
-
+  
+  // Log subjects to check course ID
+  subjectTodos.forEach(subject => {
+    console.log("Subject ID:", subject._id, "Course ID:", subject.courseId);
+  });
+  
+  // Filter subjects according to the course 
+  const filterSubject = subjectTodos.filter((subject) => subject.courseId === courseId);
+  
   // Delete Subject Data
   const deleteSubjectTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Subject/Subject/${id}`)
+      const response = await axios.delete(`http://localhost:5000/Subject/Subject/${id}`);
       if (response.status === 200) {
-        const filteredSubjects = filterSubject.filter(subject => subject._id !== id);
-        console.log("filteredSubjects: ", filteredSubjects)
-        localStorage.setItem("subjectTodo", JSON.stringify(filteredSubjects));
-        toast.success("Subject deleted successfully")
+        setSubjectTodos(prev => prev.filter(subject => subject._id !== id));
+        toast.success("Subject deleted successfully");
       }
     } catch (error) {
       if (error.response) {
-        toast.error(`Error: ${error.response.data.message || "Failed to delete subject"}`)
-      } else if (error.response) {
-        toast.error("An unexpected error occurred")
+        toast.error(`Error: ${error.response.data.message || "Failed to delete subject"}`);
+      } else {
+        toast.error("An unexpected error occurred");
       }
     }
   };
-
-  console.log("filtered subject: ", filterSubject)
-  console.log("Subject todo: ", subjectTodos);
-
-  /* ============================================================================================================ */
-
-
+  
   /* ============================================================================================================ */
 
   // Add Student Data
-  const addStudentData = () => {
-    const addStudentData = [...studentTodos, { id: Date.now(), courseId: courseId, text: { studentName: studentName, rollNumber: rollNumber } }]
-    setStudentTodos(addStudentData)
-    localStorage.setItem("studentTodo", JSON.stringify(addStudentData))
-    setStudentName("")
-    setRollNumber("")
-  }
+  // const addStudentData = async () => {
+  //   try {
+  //     const response = await axios.post("http://localhost:5000/Student/StudentReg", {
+  //       courseId,
+  //       studentName,
+  //       rollNumber
+  //     });
+      
+  //     const { _id, studentName, rollNumber } = response.data; // Assuming the server responds with these fields
+  
+  //     // Update local state
+  //     setStudentTodos(prev => [
+  //       ...prev,
+  //       { id: _id, courseId, text: { studentName, rollNumber } }
+  //     ]);
+      
+  //     localStorage.setItem("studentTodo", JSON.stringify([...studentTodos, { id: _id, courseId, text: { studentName, rollNumber } }]));
+  
+  //     setStudentName("");
+  //     setRollNumber("");
+  //     toast.success("Student added successfully");
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || "An error occurred while adding the student");
+  //   }
+  // };
+  
+  // // Delete Student Data
+  // const deleteStudentTodo = async (id) => {
+  //   try {
+  //     const response = await axios.delete(`http://localhost:5000/Student/${id}`);
+  //     if (response.status === 200) {
+  //       const filteredStudents = studentTodos.filter(studentTodo => studentTodo.id !== id);
+  //       setStudentTodos(filteredStudents);
+  //       localStorage.setItem("studentTodo", JSON.stringify(filteredStudents));
+  //       toast.success("Student deleted successfully");
+  //     }
+  //   } catch (error) {
+  //     toast.error(error.response?.data?.message || "Failed to delete student");
+  //   }
+  // };
 
-  // Add student Data
+  // useEffect(() => {
+  //   const fetchStudentData = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:5000/Student/Students/${courseId}`); // Adjust the endpoint as necessary
+  //       const formattedStudents = response.data.map(student => ({
+  //         id: student._id,
+  //         courseId: student.courseId,
+  //         text: { studentName: student.studentName, rollNumber: student.rollNumber }
+  //       }));
+  //       setStudentTodos(formattedStudents);
+  //     } catch (error) {
+  //       toast.error(error.response?.data?.message || "Failed to fetch students");
+  //     }
+  //   };
+  
+  //   fetchStudentData();
+  // }, [courseId]); // Run this effect when courseId changes
+  
 
-
-  console.log("Student tood len: ", studentTodos.length)
-  // Delete Student Data
-  const deleteStudentTodo = (id) => {
-    const deleteStudentTodo = studentTodos.filter((studentTodo) => studentTodo.id !== id)
-    setStudentTodos(deleteStudentTodo)
-    localStorage.setItem("studentTodo", JSON.stringify(deleteStudentTodo))
-  }
-
-  // filter student according to the course
-  const filterStudent = studentTodos.filter((student) => student.courseId === courseId)
+  // // filter student according to the course
+  // const filterStudent = studentTodos.filter((student) => student.courseId === courseId)
 
   /* ============================================================================================================ */
 
@@ -206,13 +229,7 @@ const CourseInformation = () => {
 
   // UseEffect for the subject data
   useEffect(() => {
-    const savedSubjectTodos = localStorage.getItem("subjectTodo")
-    if (savedSubjectTodos) {
-      setSubjectTodos(JSON.parse(savedSubjectTodos))
-    } else {
-
       fetchSubjectData()
-    }
   }, [])
 
   // UseEffect for the student data
@@ -339,38 +356,39 @@ const CourseInformation = () => {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-12 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>
                   <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
                 </svg>
-                <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 cursor-pointer`} onClick={() => { if (studentName && rollNumber) { addStudentData(); setIsModalOpen(true); } else { alert("First enter the Subject name and Subject Code") } }} disabled={!studentName || !rollNumber} >Create Student</button>
+                {/* <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 cursor-pointer`} onClick={() => { if (studentName && rollNumber) { addStudentData(); setIsModalOpen(false); } else { alert("First enter the Subject name and Subject Code") } }} disabled={!studentName || !rollNumber} >Create Student</button> */}
               </div>
             </div>
 
-            <div className={` ${isModalOpen ? "block" : "hidden"} text-black  mx-5 px-10 `}>
+            <div className={` ${isModalOpen ? "block" : "hidden"}  mx-5 px-10`}>
               <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 absolute bottom-0 mx-96`} onClick={handleFormToggle}>Add Student</button>
               <h1 className='text-3xl mb-2'>Student List :</h1>
-              <table>
-                <div className='bg-black text-white px-5 py-5 pr-20 flex justify-between '>
-                  <span>Student Name</span>
-                  <span>Roll number</span>
-                  <span>Action</span>
-                </div>
-                <ul className={`text-black`}>
+              <table className={`w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400`}>
+                <thead className='text-xl text-gray-900  bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+                  <tr>
+                    <th scope="col" className='px-6 py-3'>Student Name</th>
+                    <th scope="col" className='px-6 py-3'>Roll number</th>
+                    <th scope="col" className='px-6 py-3'>Action</th>
+                  </tr>
+                </thead>
+                {/* <tbody>
                   {
                     filterStudent.map((studentTodo) => (<>
-                      <li className={`flex justify-between text-center mx-auto mt-3 px-7`} key={studentTodo.id}>
-                        <span className=''>{studentTodo.text.studentName}</span>
-                        <span className=''>{studentTodo.text.rollNumber}</span>
-                        <div className='flex'>
-                          <button className='bg-zinc-900 hover:bg-zinc-800 text-white py-1 px-4 rounded-lg' onClick={() => { handleStudentRoute(filterStudent) }}> View </button>
-                          <button className='bg-blue-900 hover:bg-blue-800 text-white py-1 px-2 mx-1 rounded-lg'> Attendence </button>
-                          {/* <button onClick={() => handleEditSubject(subjectTodo)}><Edit className="h-9 w-9 text-red -my-1" /></button> */}
+                      <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`} key={studentTodo.id}>
+                        <td className='px-6 py-4 text-black font-bold'>{studentTodo.text.studentName}</td>
+                        <td className='px-6 py-4 text-black font-bold'>{studentTodo.text.rollNumber}</td>
+                        <td className='flex'>
+                          <button className='bg-green-700 hover:bg-green-800 mt-2 text-white py-2 px-4 mx-2 rounded-lg' onClick={() => { handleStudentRoute(filterStudent) }}> View </button>
+                          <button className='bg-yellow-500 hover:bg-yellow-600 mt-2 text-black py-2 px-4 mx-2 rounded-lg'> Attendence </button>
                           <button onClick={() => deleteStudentTodo(studentTodo.id)}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-9 text-red-700">
                             <path d="M10.375 2.25a4.125 4.125 0 1 0 0 8.25 4.125 4.125 0 0 0 0-8.25ZM10.375 12a7.125 7.125 0 0 0-7.124 7.247.75.75 0 0 0 .363.63 13.067 13.067 0 0 0 6.761 1.873c2.472 0 4.786-.684 6.76-1.873a.75.75 0 0 0 .364-.63l.001-.12v-.002A7.125 7.125 0 0 0 10.375 12ZM16 9.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" />
                           </svg>
                           </button>
-                        </div>
-                      </li>
+                        </td>
+                      </tr>
                     </>))
                   }
-                </ul>
+                </tbody> */}
               </table>
             </div>
 
@@ -379,7 +397,7 @@ const CourseInformation = () => {
 
         {/* TEACHER SECTION */}
 
-        {activeTab === "teachers" && (
+        {/* {activeTab === "teachers" && (
           <>
             <div className={`modal backdrop-blur-3xl text-black flex flex-col justify-around  border-black-900 shadow-2xl shadow-black-900 mx-auto w-96 mt-6  md:px-0 `}>
               <div className={`${isModalOpen ? "hidden" : "block"} px-10 -mt-3 border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
@@ -429,53 +447,7 @@ const CourseInformation = () => {
               </ul>
             </div>
           </>
-        )}
-
-        {/* Edit Modal */}
-        {isEditMode && (
-          <div className={`modal backdrop-blur-3xl text-black flex flex-col justify-around border-black-900 shadow-2xl shadow-black-900 mx-auto w-96 mt-6 md:px-0`}>
-            <div className="px-10 mt-10 border-2 border-gray-300 flex flex-col justify-center mx-auto">
-              <h2 className="text-xl mb-4">Edit Subject</h2>
-              <input
-                required
-                type="text"
-                placeholder='Subject Name*'
-                value={subjectName}
-                onChange={(e) => setSubjectName(e.target.value)}
-                className="rounded-lg mt-5 mb-5 outline-none border-2 border-gray-900 py-3 px-4"
-              />
-              <input
-                required
-                type="text"
-                placeholder='Subject Code*'
-                value={subjectCode}
-                onChange={(e) => setSubjectCode(e.target.value)}
-                className="rounded-lg mb-5 outline-none border-2 border-gray-900 py-3 px-4"
-              />
-              <button
-                className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3`}
-                onClick={() => {
-                  if (subjectName && subjectCode) {
-                    const updatedSubject = { ...editingSubject, text: { subjectName, subjectCode } };
-                    const updatedSubjectTodos = subjectTodos.map(todo =>
-                      todo.id === editingSubject.id ? updatedSubject : todo
-                    );
-                    setSubjectTodos(updatedSubjectTodos);
-                    localStorage.setItem("subjectTodo", JSON.stringify(updatedSubjectTodos));
-                    setIsEditMode(false);
-                    setSubjectName("");
-                    setSubjectCode("");
-                  } else {
-                    alert("Please enter the Subject Name and Subject Code");
-                  }
-                }}
-              >
-                Update Subject
-              </button>
-            </div>
-          </div>
-        )}
-
+        )} */}
       </div>
     </>
   );

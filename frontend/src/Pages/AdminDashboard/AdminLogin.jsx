@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 const AdminForm = () => {
 
   const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
   const {
     register,
     handleSubmit,
@@ -41,10 +40,6 @@ const AdminForm = () => {
         toast.error("An error occurred. Please try again.")
       }
     }
-  }
-
-  const handlePassword = () => {
-    setShowPassword(!showPassword)
   }
 
   const onError = (errors) => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import Login from './Pages/Login'
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Register from './Pages/Register';
 import AdminDashBoard from './Pages/AdminDashboard/AdminDashBoard';
 import AdminHome from './Pages/AdminDashboard/AdminHome';
@@ -20,9 +20,14 @@ import AuthProvider, { useAuth } from './Context/authProvider.js';
 import NotFound from './Components/NotFound.jsx';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import StudentLogin from './Pages/StudentDashboard/StudentLogin.jsx';
+import StudentRegistration from './Pages/StudentDashboard/StudentRegistration.jsx';
+import AdminProfile from './Pages/AdminDashboard/AdminProfile.jsx';
+import StudentSubject from './Pages/StudentDashboard/StudentSubject.jsx';
 
 
 const App = () => {
+  
 
   return (
 
@@ -36,6 +41,8 @@ const App = () => {
           <Route path='/adminLogin' element={<AdminForm />} />
           <Route path="/admin/*" element={<AdminRoutes />} />
           <Route path='/student/*' element={<StudentRoutes />} />
+          <Route path='/studentLogin' element={<StudentLogin />} />
+          <Route path='/StudentRegistration' element={<StudentRegistration />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ToastContainer />
@@ -48,10 +55,15 @@ const App = () => {
 // New component for admin routes
 const AdminRoutes = () => {
   const [userAuth] = useAuth()
+  const navigate = useNavigate()
+
+  if (!userAuth) {
+    navigate('/adminLogin'); // Redirect to login if not authenticated
+    return null; // Prevent rendering anything else
+  }
   return (
-    <>
-      {userAuth ? (
-        <>
+    
+      
           <Routes>
             <Route path="/" element={<AdminDashBoard />} >
               <Route index element={<AdminHome />} />
@@ -64,13 +76,13 @@ const AdminRoutes = () => {
               <Route path='subjectInformation/attendence' element={<StudentAttendence />} />
               <Route path='students' element={<AdminStudent />} />
               <Route path='teachers' element={<AdminTeacher />} />
+              <Route path='profile' element={<AdminProfile/>} />
+              <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
-        </>
-      ) : (
-        <NotFound />
-      )}
-    </>
+        
+  
+
   )
 }
 
@@ -82,6 +94,7 @@ const StudentRoutes = () => {
         <Route path='/' element={<StudentDashBoard />}>
           <Route index element={<StudentHome />} />
           <Route path='home' element={<StudentHome />} />
+          <Route path='subjects' element={<StudentSubject />} />
         </Route>
       </Routes>
     </>

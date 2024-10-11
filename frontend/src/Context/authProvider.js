@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
+import { toast } from 'react-toastify'
 
 export const AuthContext = createContext()
 
@@ -9,13 +10,13 @@ export default function AuthProvider({ children }) {
     return storedUser ? JSON.parse(storedUser) : null
   })
 
-  const [courseID, setCourseId] = useState(() => {
-    const storedCourseId = localStorage.getItem("courseTodo")
-    return storedCourseId ? JSON.parse(storedCourseId) : null
-  })
-
+  const logOut = () => {
+    localStorage.removeItem("Admin");
+    setAuthUser(null);
+    toast.success("Logged out successfully!");
+  }
   return (
-    <AuthContext.Provider value={[authUser, setAuthUser, courseID, setCourseId]}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={[authUser, setAuthUser, logOut]}>{children}</AuthContext.Provider>
   )
 }
 
