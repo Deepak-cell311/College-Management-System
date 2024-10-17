@@ -54,8 +54,8 @@ const CourseInformation = () => {
 
   const handleSubjectRoute = (subjectTodo) => {
     navigate('/admin/courses/information/subjectInformation', { state: { courseId, courseName, subjectTodo } })
+    console.log("subjectTodo idnndnnz: ", subjectTodo)
   }
-
 
   const handleStudentRoute = (studentTodo, subjectTodo) => {
     navigate('/admin/students', { state: { courseId, courseName, studentTodo, subjectTodo } })
@@ -203,6 +203,7 @@ const CourseInformation = () => {
   // // filter student according to the course
   // const filterStudent = studentTodos.filter((student) => student.courseId === courseId)
 
+  
   /* ============================================================================================================ */
 
 

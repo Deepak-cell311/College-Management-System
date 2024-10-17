@@ -11,8 +11,8 @@ const subjectSchema = new mongoose.Schema({
     },
     sclassName: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'sclass'
-        // required: true,
+        ref: 'sclass',
+        required: true
     },
     sessions: {
         type: String,

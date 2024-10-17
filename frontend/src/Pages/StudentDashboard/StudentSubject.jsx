@@ -5,7 +5,6 @@ import { toast } from 'react-toastify';
 const StudentSubject = () => {
   const [subjectTodo, setSubjectTodo] = useState([])
 
-
   const fetchSubjectData = async () => {
     // Retrieve student data from localStorage
     const studentData = localStorage.getItem("Student");

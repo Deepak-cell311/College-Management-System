@@ -10,7 +10,6 @@ const AdminSubject = () => {
   const fetchSubjectData = async () => {
     try {
       const response = await axios.get('http://localhost:5000/Subject/AllSubjects');
-      console.log("Response data: ", response.data); 
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           id: subject._id, 
@@ -39,13 +38,14 @@ const AdminSubject = () => {
   useEffect(() => {
     fetchSubjectData()
   })
+  console.log("subjectTodo", subjectTodo)
 
   return (
     <>
 
 
       <div className='w-full bg-zinc-800 '>
-        
+        <div className='mx-5'>
         <h1 className='text-5xl text-center mb-10 mt-10'>All Subject</h1>
         <table className={`w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 `}>
           <thead className='text-xl text-gray-900  bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
@@ -69,6 +69,7 @@ const AdminSubject = () => {
             }
           </tbody>
         </table >
+        </div>
       </div >
 
 

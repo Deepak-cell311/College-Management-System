@@ -9,7 +9,7 @@ const StudentInformation = () => {
 
   return (
     <>
-      <div className='text-black w-full'>
+      <div className='bg-zinc-800 w-full'>
         <nav>
           <ul className='flex p-3 border-2 shadow shadow-black'>
             <li onClick={() => handleTabChange("details")} className={`mr-10 pt-1 font-semibold cursor-pointer ${activeTab === 'details' ? 'text-blue-500' : ''}`} >DETAILS</li>

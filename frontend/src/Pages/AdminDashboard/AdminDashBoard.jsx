@@ -15,7 +15,7 @@ const AdminDashBoard = () => {
     const handleLogout = async () => {
         try {
           await logOut();
-          navigate('/adminLogin'); 
+          navigate('/dashboard'); 
         } catch (error) {
           console.error("Logout failed: ", error);
         }

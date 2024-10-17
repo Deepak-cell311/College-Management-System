@@ -1,93 +1,69 @@
 import React, { useEffect, useState } from 'react'
 import courseModel from "./courseModel.png"
 import { useLocation } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { useForm } from 'react-hook-form'
+import axios from 'axios'
 
 const StudentAttendence = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
-    const [attendanceStatus, setAttendanceStatus] = useState("");
-    const [date, setDate] = useState("")
-    const [studentName, setStudentName] = useState([])
     const [attendanceTodo, setAttendanceTodo] = useState([])
 
     const location = useLocation()
-    const { courseId, showStudentData } = location.state || {}
+    const { showSubjectData = {}, studentId = '' } = location.state || {};
 
-    console.log("showStudentData: ", showStudentData);
-    console.log("studentName: ", studentName);
     
-    const handleSubmit = () => {
+    const { handleSubmit, register } = useForm()
+    const onError = (errors) => {
+        Object.values(errors).forEach(
+            error => { toast.error(error.message) }
+        )
+    }
+    console.log("student data cjjjdjsjcns: ", studentId)
 
-        const attendanceTodoData = [...attendanceTodo, { id: showStudentData.studentId, courseId: courseId, text: { attendanceStatus: attendanceStatus, attendenceDate: date } }]
-        setAttendanceTodo(attendanceTodoData)
-        localStorage.setItem("attendanceTodo", JSON.stringify(attendanceTodoData))
-
-        // Update the present count based on the status
-        const currentAttendanceCount = JSON.parse(localStorage.getItem("attendanceCount")) || { present: 0, total: 0 };
-
-        if (attendanceStatus === "Present") {
-            currentAttendanceCount.present += 1;
-        } else if (attendanceStatus === "Absent") {
-            currentAttendanceCount.present -= 1; // Decrease present count if status is absent
+    const handleOnSubmitAttendance = async (data) => {
+        try {
+          const response = await axios.put(`http://localhost:5000/Student/StudentAttendance/${studentId}`, {
+            subName: data.subName,
+            status: data.status,
+            date: data.date
+          });
+          console.log("response: ",response.data)
+          if (response.data) {
+            setAttendanceTodo(prevAttendance => [...prevAttendance, response.data]);
+            toast.success("Attendance Marked Successfully");
+          }
+        } catch (error) {
+          console.error("Error marking attendance:", error);
+          toast.error(error.response?.data?.message || "An error occurred while marking attendance");
         }
-
-        currentAttendanceCount.total += 1; // Increment total attendance
-        localStorage.setItem("attendanceCount", JSON.stringify(currentAttendanceCount));
-
-
-        // clearing inputs
-        setAttendanceStatus("")
-        setDate("")
-        console.log("attendanceTodoData: ", attendanceTodoData)
-    };
-
-    useEffect(() => {
-        const getStudentNames = localStorage.getItem("studentTodo");
-        if (getStudentNames) {
-            const parsedData = JSON.parse(getStudentNames);
-            if (Array.isArray(parsedData)) {
-                setStudentName(parsedData.map((data) => ({
-                    studentId: data.id,
-                    studentName: data.text.studentName,
-                    rollNumber: data.text.rollNumber,
-                    courseId: data.courseId
-                })))
-            } else if (parsedData && parsedData.text) {
-                setStudentName([{
-                    studentId: parsedData.id,
-                    studentName: parsedData.text.studentName,
-                    rollNumber: parsedData.text.rollNumber,
-                    courseId: parsedData.text.courseId
-                }]);
-            }
-        }
-
-        const savedAttendanceTodos = localStorage.getItem("attendanceTodo")
-        if (savedAttendanceTodos) {
-            setAttendanceTodo(JSON.parse(savedAttendanceTodos))
-        }
-
-
-
-    }, []);
-
-    const filterName = studentName.filter((student) => student.studentId === showStudentData.id)
-    console.log("filterName: ", filterName);
-    console.log("showData: ", showStudentData.name)
+      };
     
+
+
+    console.log("attendanceTodo", attendanceTodo)
     return (
         <>
-            <div className={`modal backdrop-blur-3xl text-black flex flex-col justify-around  border-black-900 mx-auto w-96  md:px-0 `}>
-                <h1 className='text-center text-2xl -mx-20 mt-20'> <b>Student Name: </b> {showStudentData.name} </h1>
-                <div className={`${isModalOpen ? "hidden" : "block"} px-10  border-2  flex flex-col justify-center mx-auto -mt-20 `}>
-                    <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
-                    <label htmlFor="status">Attendence status*</label>
-                    <select id="status" value={attendanceStatus} onChange={(e) => setAttendanceStatus(e.target.value)} className="rounded-lg border-2 border-gray-900 py-2 px-4 mb-3">
-                        <option value="Present">Present</option>
-                        <option value="Absent">Absent</option>
-                    </select>
-                    <label htmlFor="date">Attendence status*</label>
-                    <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={`rounded-lg font-5xl mt-1 mb-3 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
-                    <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-0 mb-3 cursor-pointer`} onClick={handleSubmit}>Submit</button>
+            <div className='bg-zinc-800 w-full'>
+                <div className={`modal backdrop-blur-3xl  flex flex-col justify-around  border-black-900 mx-auto w-96  md:px-0 `}>
+                    <h1 className='text-center text-3xl -mx-20  mt-20'> <b>Student Name: </b> {showSubjectData.name} </h1>
+                    <form onSubmit={handleSubmit(handleOnSubmitAttendance, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 py-4 bg-white text-black  border-2  flex flex-col justify-center mt-10 `}>
+                        <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
+
+                        <label htmlFor="status">Attendence status*</label>
+                        <select {...register("status", { required: "Attendance status is Required" })} id="status" className="rounded-lg border-2 border-gray-900 py-2 px-4 mb-3">
+                            <option value="">Mark Attendance</option>
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+
+                        <label htmlFor="subName">Subject*</label>
+                        <input {...register("subName", { required: "Subject Name is Required" })} id="subName" className="rounded-lg border-2 border-gray-900 py-2 px-4 mb-3" />
+
+                        <label htmlFor="date">Attendence Date*</label>
+                        <input {...register("date", { required: "Date is Required" })} type="date" className={`rounded-lg font-5xl mt-1 mb-3 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
+                        <button type='submit' className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-0 mb-3 cursor-pointer`}>Submit</button>
+                    </form>
                 </div>
             </div>
         </>

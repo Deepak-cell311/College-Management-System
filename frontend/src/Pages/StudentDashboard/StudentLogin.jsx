@@ -50,7 +50,7 @@ const StudentLogin = () => {
   };
   return (
     <>
-      <div className='main flex flex-col md:h-screen h-screen bg-blue-600 w-full md:flex-row md:overflow-y-hidden text-sm'>
+      <div className='main flex flex-col md:h-screen h-screen bg-blue-600 w-full md:flex-row text-sm'>
         <div className='image bg-green-700 w-full md:h-screen'>
           <img className='h-full w-full md:h-screen object-fit' src={dams} alt="dams college" />
         </div>

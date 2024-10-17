@@ -24,6 +24,8 @@ import StudentLogin from './Pages/StudentDashboard/StudentLogin.jsx';
 import StudentRegistration from './Pages/StudentDashboard/StudentRegistration.jsx';
 import AdminProfile from './Pages/AdminDashboard/AdminProfile.jsx';
 import StudentSubject from './Pages/StudentDashboard/StudentSubject.jsx';
+import StudentProfile from './Pages/StudentDashboard/StudentProfile.jsx';
+import StudentAttendance from './Pages/StudentDashboard/StudentAttendance.jsx';
 
 
 const App = () => {
@@ -95,6 +97,8 @@ const StudentRoutes = () => {
           <Route index element={<StudentHome />} />
           <Route path='home' element={<StudentHome />} />
           <Route path='subjects' element={<StudentSubject />} />
+          <Route path='profile' element={<StudentProfile />} />
+          <Route path='attendance' element={<StudentAttendance />} />
         </Route>
       </Routes>
     </>

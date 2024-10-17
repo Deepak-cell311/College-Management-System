@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../../assets/logo.jpg";
 import dams from "../../assets/dams.jpg";
@@ -10,27 +10,28 @@ import { Asterisk } from 'lucide-react';
 const StudentRegistration = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
-  const [student, setStudent] = useState("")
 
   const handleOnSubmit = async (data) => {
+
     try {
       const response = await axios.post("http://localhost:5000/Student/StudentReg", {
-        name: data.studentName,
-        rollNum: data.rollNumber,
+        name: data.name,
+        rollNum: data.rollNum,
         password: data.password,
-        course: data.course, 
+        sclassName: data.sclassName,
       });
       console.log(response.data)
-      
+
       if (response.data) {
         toast.success('Registration successful.');
-        navigate("/StudentLogin"); 
+        navigate("/StudentLogin");
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
+      console.log(error)
       if (error.response) {
-        toast.error(error.response.data.message); 
+        toast.error(error.response.data.message);
       } else {
         toast.error("An error occurred. Please try again.");
       }
@@ -52,44 +53,44 @@ const StudentRegistration = () => {
           <h1 className='text-center text-3xl'>Student Registration</h1>
           <form onSubmit={handleSubmit(handleOnSubmit, onError)} className='px-10 md:p-10 mx-auto'>
             <div className='mx-auto flex flex-col'>
-              <label htmlFor="studentName" className='text-black text-xl flex'>Student Name <span><Asterisk color="#ff0000" className='size-4'/></span></label>
+              <label htmlFor="studentName" className='text-black text-xl flex'>Student Name <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input
-                {...register('studentName', {
+                {...register('name', {
                   required: "Student Name is required",
                   minLength: { value: 2, message: "Student Name must be at least 2 characters" }
                 })}
                 type="text"
-                name='studentName'
-                id='studentName'
+                name='name'
+                id='name'
                 placeholder='Student Name'
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
 
-              <label htmlFor="rollNumber" className='text-black text-xl flex'>Student Roll Number <span><Asterisk color="#ff0000" className='size-4'/></span></label>
+              <label htmlFor="rollNum" className='text-black text-xl flex'>Student Roll Number <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input
-                {...register('rollNumber', {
+                {...register('rollNum', {
                   required: "Roll Number is required",
                   pattern: { value: /^[0-9]+$/, message: "Invalid roll number" }
                 })}
                 type="text"
-                name='rollNumber'
-                id='rollNumber'
+                name='rollNum'
+                id='rollNum'
                 placeholder='Enter Your Roll Number'
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
 
-              <label htmlFor="course" className='text-black text-xl flex'>Course <span><Asterisk color="#ff0000" className='size-4'/></span></label>
+              <label htmlFor="sclassName" className='text-black text-xl flex'>Course <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input
-                {...register('course', {
+                {...register('sclassName', {
                   required: "course is required",
                   minLength: { value: 2, message: "Course must be minimum 2 characters long" }
                 })}
                 type="text"
-                name='course'
-                id='course'
-                placeholder='course'
+                name='sclassName'
+                id='sclassName'
+                placeholder='Course'
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
-          
 
-              <label htmlFor="password" className='text-black text-xl flex'>Password <span><Asterisk color="#ff0000" className='size-4'/></span></label>
+
+              <label htmlFor="password" className='text-black text-xl flex'>Password <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input
                 {...register('password', {
                   required: "Password is required",
