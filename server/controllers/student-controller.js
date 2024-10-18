@@ -75,9 +75,7 @@ const getStudents = async (req, res) => {
 const getStudentDetail = async (req, res) => {
     try {
         let student = await Student.findById(req.params.id)
-            .populate("sclassName", "sclassName")
-            .populate("examResult.subName", "subName")
-            .populate("attendance.subName", "subName sessions");
+            .populate("sclassName", "sclassName");
         if (student) {
             student.password = undefined;
             res.send(student);
@@ -149,8 +147,9 @@ const updateStudent = async (req, res) => {
             { new: true })
         result.password = undefined;
         res.send(result)
-    } catch (err) {
-        res.status(500).json(err);
+    } catch (error) {
+        console.error("Error in studentAttendance:", error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
 
@@ -161,8 +160,9 @@ const updateExamResult = async (req, res) => {
         if (!student) {
             return res.send({ message: 'Student not found' });
         }
+        const subId = subName._id || subName;
         const existingResult = student.examResult.find(
-            (result) => result.subName.toString() === subName
+            (result) => result.subName.toString() === subId .toString()
         );
         if (existingResult) {
             existingResult.marksObtained = marksObtained;
@@ -172,7 +172,8 @@ const updateExamResult = async (req, res) => {
         const result = await student.save();
         return res.send(result);
     } catch (error) {
-        res.status(500).json(error);
+        console.error("Error in studentAttendance:", error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
 
@@ -196,13 +197,12 @@ const studentAttendance = async (req, res) => {
             if (attendedSessions >= subject.sessions) {
                 return res.send({ message: 'Maximum attendance limit reached' });
             }
-            student.attendance.push({ date, status, subName });
+            student.attendance.push({ date, status, subName: subject._id });
         }
         const result = await student.save();
         return res.send(result);
     } catch (error) {
-        console.error("Error in studentAttendance:", error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        res.status(500).json(error);
     }
 };
 

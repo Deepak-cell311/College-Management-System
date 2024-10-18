@@ -23,7 +23,7 @@ const StudentAttendence = () => {
 
     const handleOnSubmitAttendance = async (data) => {
         try {
-          const response = await axios.put(`http://localhost:5000/Student/StudentAttendance/${studentId}`, {
+          const response = await axios.put(`http://192.168.149.125:5000/Student/StudentAttendance/${studentId}`, {
             subName: data.subName,
             status: data.status,
             date: data.date
@@ -46,8 +46,8 @@ const StudentAttendence = () => {
         <>
             <div className='bg-zinc-800 w-full'>
                 <div className={`modal backdrop-blur-3xl  flex flex-col justify-around  border-black-900 mx-auto w-96  md:px-0 `}>
-                    <h1 className='text-center text-3xl -mx-20  mt-20'> <b>Student Name: </b> {showSubjectData.name} </h1>
-                    <form onSubmit={handleSubmit(handleOnSubmitAttendance, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 py-4 bg-white text-black  border-2  flex flex-col justify-center mt-10 `}>
+                    <h1 className='text-center text-3xl -mx-20  mt-10'> <b>Student Name: </b> {showSubjectData.name} </h1>
+                    <form onSubmit={handleSubmit(handleOnSubmitAttendance, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 py-4 bg-white text-black  border-2  flex flex-col justify-center mt-5 `}>
                         <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
 
                         <label htmlFor="status">Attendence status*</label>
@@ -58,7 +58,7 @@ const StudentAttendence = () => {
                         </select>
 
                         <label htmlFor="subName">Subject*</label>
-                        <input {...register("subName", { required: "Subject Name is Required" })} id="subName" className="rounded-lg border-2 border-gray-900 py-2 px-4 mb-3" />
+                        <input {...register("subName", { required: "Subject Name is Required" })}  className="rounded-lg border-2 border-gray-900 py-2 px-4 mb-3" />
 
                         <label htmlFor="date">Attendence Date*</label>
                         <input {...register("date", { required: "Date is Required" })} type="date" className={`rounded-lg font-5xl mt-1 mb-3 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />

@@ -26,6 +26,7 @@ import AdminProfile from './Pages/AdminDashboard/AdminProfile.jsx';
 import StudentSubject from './Pages/StudentDashboard/StudentSubject.jsx';
 import StudentProfile from './Pages/StudentDashboard/StudentProfile.jsx';
 import StudentAttendance from './Pages/StudentDashboard/StudentAttendance.jsx';
+import AdminStudents from './Pages/AdminDashboard/AdminStudents.jsx';
 
 
 const App = () => {
@@ -76,7 +77,8 @@ const AdminRoutes = () => {
               <Route path='subjects' element={<AdminSubject />} />
               <Route path='courses/information/subjectInformation' element={<SubjectInformation />} />
               <Route path='subjectInformation/attendence' element={<StudentAttendence />} />
-              <Route path='students' element={<AdminStudent />} />
+              <Route path='students' element={<AdminStudent  />} />
+              <Route path='adminStudent' element={<AdminStudents  />} />
               <Route path='teachers' element={<AdminTeacher />} />
               <Route path='profile' element={<AdminProfile/>} />
               <Route path="*" element={<NotFound />} />

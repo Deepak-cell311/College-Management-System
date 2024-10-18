@@ -47,7 +47,7 @@ const AdminCourses = () => {
   // Create course
   const handleOnSubmitCourse = async (data) => {
     try {
-      const response = await axios.post('http://localhost:5000/Sclass/SclassCreate', {
+      const response = await axios.post('http://192.168.149.125:5000/Sclass/SclassCreate', {
         sclassName: data.courseName,
       })
       console.log("response: ", response)
@@ -70,7 +70,7 @@ const AdminCourses = () => {
   // Show the List of courses
   const fetchCourses = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/Sclass/SclassList")
+      const response = await axios.get("http://192.168.149.125:5000/Sclass/SclassList")
       if (Array.isArray(response.data)) {
         console.log("response.data: ", response.data)
         const formattedCourse = response.data.map((course) => ({
@@ -88,7 +88,7 @@ const AdminCourses = () => {
   // Delete course from the queue
   const deleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Sclass/Sclass/${id}`)
+      const response = await axios.delete(`http://192.168.149.125:5000/Sclass/Sclass/${id}`)
       if (response.status === 200) {
         const updateCourseTodo = setCourseTodo(courses => courses.filter(course => course._id !== id))
         localStorage.setItem("courseTodo", JSON.stringify(updateCourseTodo));

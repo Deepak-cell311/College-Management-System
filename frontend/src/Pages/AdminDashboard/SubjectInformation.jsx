@@ -7,10 +7,6 @@ import axios from 'axios'
 
 const SubjectInformation = () => {
   const [activeTab, setActiveTab] = useState("details")
-  const [todoLength, setTodoLength] = useState(0);
-  const [subjectData, setSubjectData] = useState([]);
-  const [showStudentData, setShowStudentData] = useState([])
-  const [attendanceTodo, setAttendanceTodo] = useState([]);
   const [studentTodo, setStudentTodo] = useState([])
 
   const navigate = useNavigate()
@@ -23,6 +19,7 @@ const SubjectInformation = () => {
     navigate('/admin/students', { state: { courseId, courseName, studentTodo, showStudentData: studentTodo, attendance, subjectData: subjectTodo } })
   }
 
+
   const { attendance } = location.state || {}
   const handleAttendence = (student) => {
     navigate("/admin/subjectInformation/attendence", { state: { courseId, showSubjectData: subjectTodo, studentId: student._id } })
@@ -34,7 +31,7 @@ const SubjectInformation = () => {
     try {
 
       // Fetch the student detail using the API call
-      const response = await axios.get(`http://localhost:5000/Student/ClassStudents/${courseId}`);
+      const response = await axios.get(`http://192.168.149.125:5000/Student/ClassStudents/${courseId}`);
       console.log("student response: ", response.data)
       if (Array.isArray(response.data)) {
         const formattedData = response.data.map((student) => ({
@@ -82,12 +79,12 @@ const SubjectInformation = () => {
                 <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl' >
                   <img className='mx-auto my-4 w-20 h-20' src={student} alt="courses" />
                   <span >Subject Name</span><br />
-                  <span className='text-green-700'>{subjectTodo.text.subjectName}</span>
+                  <span className='text-green-700'>{subjectTodo?.text?.subName}</span>
                 </div>
                 <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
                   <img className='mx-auto my-4 w-20 h-20' src={teacher} alt="teacher" />
                   <span>Subject Code</span><br />
-                  <span className='text-green-700'>{subjectTodo.text.subjectCode}</span>
+                  <span className='text-green-700'>{subjectTodo?.text?.subCode}</span>
                 </div>
                 <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
                   <img className='mx-auto my-4 w-20 h-20' src={student} alt="student" />

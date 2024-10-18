@@ -33,7 +33,7 @@ const AdminStudent = () => {
 
   const fetchAllStudent = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/Student/Students`)
+      const response = await axios.get(`http://192.168.149.125:5000/Student/Students`)
       console.log(response.data)
       if (Array.isArray(response.data)) {
         const formattedData = response.data.map(student => ({
@@ -51,23 +51,40 @@ const AdminStudent = () => {
     }
   }
 
-
-
-
-
+  // const showAttendence = () => {
+  //   const data = showStudentData.attendance
+  //   console.log("data is----- ", data)
+  //   let count = 0
+  //   data.forEach((status) => (status.status === "Present" ? count++ : "N/A"))
+  //   return count;
+  // }
   const showAttendence = () => {
-    const data = showStudentData.attendance
-    let count = 0
-    data.forEach((status) => (status.status === "Present" ? count++ : "N/A"))
+    if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0; // Ensure attendance is an array
+    const data = showStudentData.attendance;
+    let count = 0;
+    data.forEach((status) => {
+      if (status.status === "Present") count++;
+    });
     return count;
-  }
+  };
 
+
+  // const absentStudentCount = () => {
+  //   const data = showStudentData.attendance
+  //   let count = 0
+  //   data.forEach((status) => (status.status === "Absent" ? count++ : "N/A"))
+  //   return count;
+  // }
   const absentStudentCount = () => {
-    const data = showStudentData.attendance
-    let count = 0
-    data.forEach((status) => (status.status === "Absent" ? count++ : "N/A"))
+    if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0; // Ensure attendance is an array
+    const data = showStudentData.attendance;
+    let count = 0;
+    data.forEach((status) => {
+      if (status.status === "Absent") count++;
+    });
     return count;
-  }
+  };
+
 
   const totalAttendanceCount = showAttendence()
   const absentStudent = absentStudentCount()
@@ -104,41 +121,35 @@ const AdminStudent = () => {
       type: "pie",
       indexLabel: "{label}: {y}%",
       startAngle: -90,
-      dataPoints: [
-        { y: 20, label: "Airfare" },
-        { y: 24, label: "Food & Drinks" },
-        { y: 20, label: "Accomodation" },
-        { y: 14, label: "Transportation" },
-        { y: 12, label: "Activities" },
-        { y: 10, label: "Misc" }
-      ]
+      dataPoints: marksData.map(item => ({
+        y: item.marksObtained,
+        label: item.subName
+      }))
     }]
   }
 
-
- 
-
   const handleMarks = async (data) => {
     try {
-      const response = await axios.put(`http://localhost:5000/Student/updateExamResult/${showStudentData._id}`, {
-        subName: data.course || "Unknown",
+      const response = await axios.put(`http://192.168.149.125:5000/Student/UpdateExamResult/${showStudentData._id}`, {
+        subName: data.subName || "Unknown",
         marksObtained: data.marksObtained || "N/A"
       });
-      if (response.data && response.data.examResult) {
+      if (response.status === 200 && response.data.examResult) {
         setMarksData(response.data.examResult);
         toast.success("Marks added successfully");
-        setIsModalOpen(true); // Close the form and show the table
+        setIsModalOpen(true);
       } else {
         toast.error("Unexpected response format");
       }
     } catch (error) {
+      console.log(error.response)
       toast.error(error.message);
     }
   };
 
   const fetchMarksData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/Student/Student/${showStudentData._id}`);
+      const response = await axios.get(`http://192.168.149.125:5000/Student/Student/${showStudentData._id}`);
       console.log("Response data:", response.data);
       if (response.data && response.data.examResult) {
         setMarksData(response.data.examResult);
@@ -146,16 +157,20 @@ const AdminStudent = () => {
         toast.info("No exam results found for this student");
       }
     } catch (error) {
+      console.log(error.response)
       toast.error(error.response?.data?.message || "An error occurred while fetching exam results");
     }
   };
 
 
   console.log("marksData: ", marksData)
+  console.log("showStudentData: ", typeof showStudentData.attendance)
+  console.log("showStudentData: ",  showStudentData)
+
 
   useEffect(() => {
     fetchMarksData();
-  }, [showStudentData._id]);
+  }, []);
   return (
     <>
       <div className='w-full bg-zinc-800 '>
@@ -244,6 +259,21 @@ const AdminStudent = () => {
                       </tr>
                     ))}
                 </tbody>
+                {/* <tbody>
+                  {Array.isArray(showStudentData.attendance) ? (
+                    showStudentData.attendance.map((attendance) => (
+                      <tr key={attendance.date}>
+                        <th>{format(new Date(attendance.date), 'MMMM dd, yyyy, h:mm a')}</th>
+                        <th>{attendance.status}</th>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <th colSpan="2">No attendance records available.</th>
+                    </tr>
+                  )}
+                </tbody> */}
+
               </table>
             </div>
           </>)}
@@ -255,8 +285,8 @@ const AdminStudent = () => {
                 <h1 className='text-5xl text-center mt-3 font-extrabold'><u>Marks</u></h1>
                 <form onSubmit={handleSubmit(handleMarks, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 text-black bg-white mt-10 border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
                   <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
-                  <label htmlFor="course" className='text-xl'>Subject Name</label>
-                  <input type="text" placeholder='Subject Name' {...register("course", { required: "Course Name is required", minLength: { value: 2, message: "Minimum 2 character is required" } })} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
+                  <label htmlFor="subName" className='text-xl'>Subject Name</label>
+                  <input type="text" placeholder='Subject Name' {...register("subName", { required: "Subject Name is required", minLength: { value: 2, message: "Minimum 2 character is required" } })} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
                   <label htmlFor="marksObtained" className='text-xl'>Marks</label>
                   <input type="number" {...register("marksObtained", { required: "Marks is required" })} name='marksObtained' id='marksObtained' placeholder='Marks' className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-28 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>

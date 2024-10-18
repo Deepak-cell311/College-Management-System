@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
-import student from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/student.png"
-import teacher from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/teachers.png"
-import courses from "/home/kali/Desktop/VsCode Workspace/CMS/frontend/src/assets/courses.png"
+import student from "../../assets/student.png"
+import teacher from "../../assets/teachers.png"
+import courses from "../../assets/courses.png"
 import courseModel from "./courseModel.png"
 import { Trash2 } from 'lucide-react';
 import axios from 'axios';
@@ -72,7 +72,7 @@ const CourseInformation = () => {
   // Add Subject
   const addSubjectData = async (data) => {
     try {
-      const response = await axios.post(`http://localhost:5000/Subject/SubjectCreate/${courseId}`, {
+      const response = await axios.post(`http://192.168.149.125:5000/Subject/SubjectCreate/${courseId}`, {
         ...data,
         courseId, // Pass courseId here if necessary
       });
@@ -91,7 +91,7 @@ const CourseInformation = () => {
   // Fetch data from the database
   const fetchSubjectData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/Subject/AllSubjects');
+      const response = await axios.get('http://192.168.149.125:5000/Subject/AllSubjects');
       console.log("Response data: ", response.data); // Log the response
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
@@ -123,7 +123,7 @@ const CourseInformation = () => {
   // Delete Subject Data
   const deleteSubjectTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Subject/Subject/${id}`);
+      const response = await axios.delete(`http://192.168.149.125:5000/Subject/Subject/${id}`);
       if (response.status === 200) {
         setSubjectTodos(prev => prev.filter(subject => subject._id !== id));
         toast.success("Subject deleted successfully");
