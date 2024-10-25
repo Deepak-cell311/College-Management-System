@@ -10,7 +10,7 @@ const StudentAttendence = () => {
     const [attendanceTodo, setAttendanceTodo] = useState([])
 
     const location = useLocation()
-    const { showSubjectData = {}, studentId = '' } = location.state || {};
+    const { showSubjectData, studentId  } = location.state || {};
 
     
     const { handleSubmit, register } = useForm()

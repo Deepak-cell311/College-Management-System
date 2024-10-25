@@ -60,29 +60,6 @@ const StudentHome = () => {
         }
     };
 
-    // const fetchStudentCount = async() => {
-    //     try {
-    //         const studentData = localStorage.getItem("Student")
-    //         if(!studentData){
-    //             toast.error("No student data found. Please log in.");
-    //             return;
-    //         }
-
-    //         const student = JSON.parse(studentData)
-    //         const sclassName = student.sclassName?._id
-
-    //         const response = await axios.get(`http://localhost:5000/Student/Student/${sclassName}`)
-    //         if(Array.isArray(response.data)){
-    //             setStudentCount(response.data.length)
-    //         } else{
-    //             console.log("Failed to fetch students")
-    //         }
-
-    //     } catch (error) {
-    //         console.log(error.message)
-    //     }
-    // }
-
     useEffect(() => {
         const getNoticeTodoData = localStorage.getItem("noticeTodo")
         if (getNoticeTodoData) {

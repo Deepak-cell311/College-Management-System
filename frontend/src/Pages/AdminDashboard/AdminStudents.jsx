@@ -1,25 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 
 const AdminStudents = () => {
     const [studentTodo, setStudentTodo] = useState([])
-
     const navigate = useNavigate()
-    const location = useLocation()
-
-    // Fetch all the students from the backend
-
     const handleView = (student) => {
-        navigate("/admin/students", { state: { showStudentData: student, courseName: "Course Name", subjectData: { text: { sessions: 10, subName: "Subject Name" } } } });
+        navigate("/admin/students", { state: { showStudentData: student, subjectData: { text: { sessions: 10, subName: "Subject Name" } } } });
     };
-
     console.log(studentTodo)
     const fetchAllStudent = async (data) => {
         try {
-
-            // Fetch the student detail using the API call
             const response = await axios.get(`http://192.168.149.125:5000/Student/Students`);
             if (Array.isArray(response.data)) {
                 const formattedData = response.data.map((student) => ({
@@ -28,7 +20,6 @@ const AdminStudents = () => {
                     rollNum: student.rollNum || "N/A",
                     attendance: student.attendance
                 }))
-                // console.log(formattedData)
                 setStudentTodo(formattedData);
             } else {
                 toast.error("Failed to fetch subjects.");
@@ -39,14 +30,9 @@ const AdminStudents = () => {
         }
     };
 
-    // console.log("student todo: ", studentTodo)
-
     useEffect(() => {
         fetchAllStudent()
     }, [])
-
-    //  console.log("attendence Todo: ", attendanceTodo)
-
 
     return (
         <>
@@ -69,8 +55,6 @@ const AdminStudents = () => {
                                     <th className='px-6 py-4 text-black font-bold'>
                                         <div className='-mx-5'>
                                             <button className={`bg-cyan-500 hover:bg-cyan-600 px-3 py-2  rounded-lg cursor-pointer`} onClick={() => handleView(student)}>View</button>
-                                            <button className={`bg-yellow-500 hover:bg-cyan-600 px-3 py-2 mx-3 rounded-lg cursor-pointer`} >Take Attendence</button>
-
                                         </div>
                                     </th>
                                 </tr>

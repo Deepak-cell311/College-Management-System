@@ -6,7 +6,7 @@ import { useAuth } from '../../Context/authProvider'
 const AdminDashBoard = () => {
     const [menu, setMenu] = useState(true)
     const navigate = useNavigate()
-    const [authUser, setAuthUser, logOut] = useAuth();
+    const {authUser, setAuthUser, logOut} = useAuth();
 
     const handleMenuBar = () => {
         setMenu(!menu)
@@ -22,9 +22,7 @@ const AdminDashBoard = () => {
       };
     return (
         <>
-
             {/* Dashboard sidebar section */}
-
             <div className='flex text-white'>
                 <button onClick={handleMenuBar} className={`${menu ? "text-white" : "text-black"} md:hidden absolute flex py-5 px-4`}><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-9 inline-block">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />

@@ -11,3 +11,32 @@ html, body{
   /* background-color: rgb(17, 17, 17);
   color: white; */
 }
+.dashboard-container {
+  background-color: #1e1e2f; /* Dark background for the dashboard */
+  min-height: 100vh;
+}
+
+.sidebar {
+  transition: all 0.3s ease; /* Smooth transition */
+}
+
+.menu-item {
+  padding: 10px 15px; /* Better padding */
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Subtle hover effect */
+}
+
+.icon {
+  width: 24px; /* Consistent icon size */
+  height: 24px;
+  margin-right: 10px;
+}
+
+.content-area {
+  padding: 20px;
+  background-color: #2a2a3d; /* Lighter background for content */
+  flex: 1; /* Allow content area to take remaining space */
+  transition: all 0.3s ease;
+}

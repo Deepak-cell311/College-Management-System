@@ -15,7 +15,6 @@ const SubjectInformation = () => {
   const handleTabChange = (tab) => setActiveTab(tab)
 
   const handleStudentRoute = (studentTodo) => {
-    // const attendanceData = attendanceTodo.filter(att => att.studentId === student.studentId);
     navigate('/admin/students', { state: { courseId, courseName, studentTodo, showStudentData: studentTodo, attendance, subjectData: subjectTodo } })
   }
 
@@ -51,14 +50,9 @@ const SubjectInformation = () => {
     }
   };
 
-  // console.log("student todo: ", studentTodo)
-
   useEffect(() => {
     fetchAllStudent()
   }, [])
-
-  //  console.log("attendence Todo: ", attendanceTodo)
-
 
   return (
     <>
@@ -79,7 +73,7 @@ const SubjectInformation = () => {
                 <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl' >
                   <img className='mx-auto my-4 w-20 h-20' src={student} alt="courses" />
                   <span >Subject Name</span><br />
-                  <span className='text-green-700'>{subjectTodo?.text?.subName}</span>
+                  <span className='text-green-700 text-2xl'>{subjectTodo?.text?.subName}</span>
                 </div>
                 <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
                   <img className='mx-auto my-4 w-20 h-20' src={teacher} alt="teacher" />

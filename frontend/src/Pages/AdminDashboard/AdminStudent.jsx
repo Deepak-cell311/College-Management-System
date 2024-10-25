@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { LogIn, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import courseModel from "./courseModel.png"
 import { toast } from 'react-toastify'
@@ -8,12 +8,9 @@ import { format } from 'date-fns'
 import CanvasJSReact from '@canvasjs/react-charts';
 import { useForm } from 'react-hook-form'
 
-
-
 const AdminStudent = () => {
 
   var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-  const [studentTodo, setStudentTodo] = useState([])
   const [activeTab, setActiveTab] = useState("details")
   const [isModalOpen, setIsModalOpen] = useState("")
   const [marksData, setMarksData] = useState([])
@@ -21,8 +18,7 @@ const AdminStudent = () => {
   const handleTabChange = (tab) => setActiveTab(tab)
 
   const location = useLocation()
-  const { courseId, showStudentData, courseName, subjectData } = location.state || {}
-
+  const { showStudentData = {}, courseName, subjectData } = location.state || {};
 
   const { handleSubmit, register } = useForm()
   const onError = (errors) => {
@@ -31,35 +27,8 @@ const AdminStudent = () => {
     )
   }
 
-  const fetchAllStudent = async () => {
-    try {
-      const response = await axios.get(`http://192.168.149.125:5000/Student/Students`)
-      console.log(response.data)
-      if (Array.isArray(response.data)) {
-        const formattedData = response.data.map(student => ({
-          name: student.name,
-          rollNum: student.rollNum,
-          sclassName: student.sclassName.sclassName
-        }))
-        console.log(formattedData)
-        setStudentTodo(formattedData)
-      } else {
-        toast.info(response.data.message);
-      }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred while fetching students");
-    }
-  }
-
-  // const showAttendence = () => {
-  //   const data = showStudentData.attendance
-  //   console.log("data is----- ", data)
-  //   let count = 0
-  //   data.forEach((status) => (status.status === "Present" ? count++ : "N/A"))
-  //   return count;
-  // }
   const showAttendence = () => {
-    if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0; // Ensure attendance is an array
+    if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0; 
     const data = showStudentData.attendance;
     let count = 0;
     data.forEach((status) => {
@@ -68,15 +37,8 @@ const AdminStudent = () => {
     return count;
   };
 
-
-  // const absentStudentCount = () => {
-  //   const data = showStudentData.attendance
-  //   let count = 0
-  //   data.forEach((status) => (status.status === "Absent" ? count++ : "N/A"))
-  //   return count;
-  // }
   const absentStudentCount = () => {
-    if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0; // Ensure attendance is an array
+    if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0; 
     const data = showStudentData.attendance;
     let count = 0;
     data.forEach((status) => {
@@ -89,8 +51,7 @@ const AdminStudent = () => {
   const totalAttendanceCount = showAttendence()
   const absentStudent = absentStudentCount()
   const attendancePercentage = totalAttendanceCount > 0 ? ((totalAttendanceCount / subjectData.text.sessions) * 100).toFixed(2) + '%' : '0.00%'   // for present student
-  const absent = absentStudent > 0 ? ((absentStudent / subjectData.text.sessions) * 100).toFixed(2) + '%' : '0.00%'   // for present student
-
+  const absent = absentStudent > 0 ? ((absentStudent / subjectData.text.sessions) * 100).toFixed(2) + '%' : '0.00%'   // for absent student
 
   const attendance = {
     animationEnabled: true,
@@ -134,6 +95,7 @@ const AdminStudent = () => {
         subName: data.subName || "Unknown",
         marksObtained: data.marksObtained || "N/A"
       });
+      console.log("response of marks: ", response.data)
       if (response.status === 200 && response.data.examResult) {
         setMarksData(response.data.examResult);
         toast.success("Marks added successfully");
@@ -162,15 +124,13 @@ const AdminStudent = () => {
     }
   };
 
-
-  console.log("marksData: ", marksData)
-  console.log("showStudentData: ", typeof showStudentData.attendance)
-  console.log("showStudentData: ",  showStudentData)
-
+  console.log("marksData: ", marksData);
+  
 
   useEffect(() => {
     fetchMarksData();
   }, []);
+
   return (
     <>
       <div className='w-full bg-zinc-800 '>
@@ -183,7 +143,7 @@ const AdminStudent = () => {
         </nav>
 
         <div className='mx-5'>
-          {activeTab === "details" && (<>
+          {activeTab === "details" && showStudentData && (<>
             <h1 className='text-5xl bold text-center mt-10 font-extrabold mb-5'><u>Students Detail</u></h1>
             <table className={`w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 `}>
               <thead className='text-xl text-gray-900  bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
@@ -195,8 +155,8 @@ const AdminStudent = () => {
               </thead>
               <tbody>
                 <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`}  >
-                  <th className='px-6 py-4 text-black font-bold'>{showStudentData.name}</th>
-                  <th className='px-6 py-4 text-black font-bold'>{showStudentData.rollNum}</th>
+                  <th className='px-6 py-4 text-black font-bold'>{showStudentData.name || "N/A"}</th>
+                  <th className='px-6 py-4 text-black font-bold'>{showStudentData.rollNum || "N/A"}</th>
                   <th className='px-6 py-4 text-black font-bold'>{courseName}</th>
                 </tr>
               </tbody>
@@ -207,7 +167,6 @@ const AdminStudent = () => {
               </div>
               <div className='mx-3 border-2 w-3/4'>
                 <CanvasJSChart options={marks}
-                //  onRef = {ref => this.chart = ref}
                 />
               </div>
 
@@ -226,17 +185,18 @@ const AdminStudent = () => {
                 </tr>
               </thead>
               <tbody>
+               {showStudentData.attendance.map((attendance) => ( 
                 <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`}  >
-                  <th className='px-6 py-4 text-black font-bold'>{subjectData.text.subName}</th>
+                  <th className='px-6 py-4 text-black font-bold'>{attendance.subName || "N/A"}</th>
                   <th className='px-6 py-4 text-black font-bold'>{totalAttendanceCount}</th>
-                  <th className='px-6 py-4 text-black font-bold'>{subjectData.text.sessions}</th>
+                  <th className='px-6 py-4 text-black font-bold'>{subjectData?.text?.sessions || "N/A"}</th>
                   <th className='px-6 py-4 text-black font-bold'> {attendancePercentage}</th>
                   <th className='px-6 py-4 text-black font-bold'>
                     <button className='bg-cyan-400 rounded px-5 py-2' >Details</button>
                     <button ><Trash2 color="#ff0000" className="h-9 w-9 text-red -my-1 mx-4" /></button>
                     <button className='bg-red-400 rounded px-5 py-2'> Change</button>
                   </th>
-                </tr>
+                </tr>))}
               </tbody>
             </table>
             <span className='text-xl italic mt-5'>Overall Attendance Percentage: {attendancePercentage}</span>
@@ -252,35 +212,26 @@ const AdminStudent = () => {
                 </thead>
                 <tbody>
                   {
-                    showStudentData.attendance.map((attendance) => (
-                      <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`}  >
-                        <th className='px-6 py-4 text-black font-bold'>{format(new Date(attendance.date), 'MMMM dd, yyyy, h:mm a')}</th>
-                        <th className='px-6 py-4 text-black font-bold'>{attendance.status}</th>
+                    Array.isArray(showStudentData?.attendance) ? (
+                      showStudentData.attendance.map((attendance) => (
+                        <tr key={attendance._id} className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`}  >
+                          <th className='px-6 py-4 text-black font-bold'>{format(new Date(attendance.date), 'MMMM dd, yyyy, h:mm a')}</th>
+                          <th className='px-6 py-4 text-black font-bold'>{attendance.status}</th>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="2" className="text-center">No attendance records available.</td>
                       </tr>
-                    ))}
+                    )
+                  }
                 </tbody>
-                {/* <tbody>
-                  {Array.isArray(showStudentData.attendance) ? (
-                    showStudentData.attendance.map((attendance) => (
-                      <tr key={attendance.date}>
-                        <th>{format(new Date(attendance.date), 'MMMM dd, yyyy, h:mm a')}</th>
-                        <th>{attendance.status}</th>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <th colSpan="2">No attendance records available.</th>
-                    </tr>
-                  )}
-                </tbody> */}
-
               </table>
             </div>
           </>)}
 
           {activeTab === "marks" && (
             <>
-              {/* Modal */}
               <div className={`modal backdrop-blur-3xl  flex flex-col justify-around  border-black-900  mx-auto w-96 mt-6 md:px-0 `}>
                 <h1 className='text-5xl text-center mt-3 font-extrabold'><u>Marks</u></h1>
                 <form onSubmit={handleSubmit(handleMarks, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 text-black bg-white mt-10 border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
@@ -302,7 +253,6 @@ const AdminStudent = () => {
                     <tr>
                       <th scope="col" className='px-6 py-3'>Subject Name</th>
                       <th scope="col" className='px-6 py-3'>Marks</th>
-                      {/* <th scope="col" className='px-6 py-3'>Delete</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -310,7 +260,6 @@ const AdminStudent = () => {
                       <tr key={index} className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`}  >
                         <th className='px-6 py-4 text-black font-bold'>{marks.subName}</th>
                         <th className='px-6 py-4 text-black font-bold'>{marks.marksObtained}</th>
-                        {/* <th><Trash2 color='red' onClick={() => deleteMarks(marks.course)}/></th> */}
                       </tr>
                     ))
                     }

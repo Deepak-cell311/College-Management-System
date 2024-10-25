@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 import student from "../../assets/student.png"
 import teacher from "../../assets/teachers.png"
@@ -16,29 +16,12 @@ const CourseInformation = () => {
   const [activeTab, setActiveTab] = useState("details")
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const [subjectName, setSubjectName] = useState("")
-  const [subjectCode, setSubjectCode] = useState("")
-
-
-  const [studentName, setStudentName] = useState("")
-  const [rollNumber, setRollNumber] = useState("")
 
   const [subjectTodos, setSubjectTodos] = useState([])
   const [studentTodos, setStudentTodos] = useState([])
 
   const [teacherTodo, setTeacherTodo] = useState([])
-
-  const [teacherName, setTeacherName] = useState("")
-  const [teacherSubject, setTeacherSubject] = useState("")
-  const [teacherEmail, setTeacherEmail] = useState("")
-  const [teacherDepartment, setTeacherDepartment] = useState("")
-
   const [courseData, setCourseData] = useState([]);
-
-  const [courseID] = useAuth()
-
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editingSubject] = useState(false);
 
   const navigate = useNavigate()
   const location = useLocation();
@@ -57,18 +40,19 @@ const CourseInformation = () => {
     console.log("subjectTodo idnndnnz: ", subjectTodo)
   }
 
-  const handleStudentRoute = (studentTodo, subjectTodo) => {
-    navigate('/admin/students', { state: { courseId, courseName, studentTodo, subjectTodo } })
-
+  const handleStudentRoute = (studentTodo) => {
+    console.log("lund: ", studentTodo);
+    navigate('/admin/courses/information/courseStudentDetail', {state: {subjectTodos, studentTodo: studentTodo._id}})
+    console.log("studentTodo ettetdgg: ", studentTodo)
   }
-
+  
   const handleFormToggle = () => {
     setIsModalOpen(!isModalOpen)
   }
 
 
 
-  /* ===========================================COMPLETED================================================================= */
+  /* ===========================================Subject COMPLETED================================================================= */
   // Add Subject
   const addSubjectData = async (data) => {
     try {
@@ -92,11 +76,11 @@ const CourseInformation = () => {
   const fetchSubjectData = async () => {
     try {
       const response = await axios.get('http://192.168.149.125:5000/Subject/AllSubjects');
-      console.log("Response data: ", response.data); // Log the response
+      console.log("Response data: ", response.data); 
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           _id: subject._id,
-          courseId: subject.sclassName, // Adjust this to the correct property
+          courseId: subject.sclassName,
           text: {
             subName: subject.subName,
             subCode: subject.subCode,
@@ -137,100 +121,46 @@ const CourseInformation = () => {
     }
   };
   
-  /* ============================================================================================================ */
+  
+  /* ==========================================Student================================================================== */
 
-  // Add Student Data
-  // const addStudentData = async () => {
-  //   try {
-  //     const response = await axios.post("http://localhost:5000/Student/StudentReg", {
-  //       courseId,
-  //       studentName,
-  //       rollNumber
-  //     });
-      
-  //     const { _id, studentName, rollNumber } = response.data; // Assuming the server responds with these fields
+  const fetchStudentData = async () => {
+    try {
+      const response = await axios.get(`http://192.168.149.125:5000/Student/ClassStudents/${courseId}`);
+      console.log("Response data: ", response.data); // Log the response
+      if (Array.isArray(response.data)) {
+        const formattedSubjects = response.data.map((student) => ({
+          _id: student._id,
+          courseId: student.sclassName, 
+          text: {
+            name: student.name,
+            rollNum: student.rollNum,
+            attendance: student.attendance,
+          },
+        }));
+        setStudentTodos(formattedSubjects);
+      } else {
+        toast.info(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "An error occurred while fetching subjects");
+      console.log(error.response)
+    }
+  };
+  const filterStudent = studentTodos.filter((student) => student.courseId === courseId);
+  console.log("filterStudent: ", filterStudent)
   
-  //     // Update local state
-  //     setStudentTodos(prev => [
-  //       ...prev,
-  //       { id: _id, courseId, text: { studentName, rollNumber } }
-  //     ]);
-      
-  //     localStorage.setItem("studentTodo", JSON.stringify([...studentTodos, { id: _id, courseId, text: { studentName, rollNumber } }]));
-  
-  //     setStudentName("");
-  //     setRollNumber("");
-  //     toast.success("Student added successfully");
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message || "An error occurred while adding the student");
-  //   }
-  // };
-  
-  // // Delete Student Data
-  // const deleteStudentTodo = async (id) => {
-  //   try {
-  //     const response = await axios.delete(`http://localhost:5000/Student/${id}`);
-  //     if (response.status === 200) {
-  //       const filteredStudents = studentTodos.filter(studentTodo => studentTodo.id !== id);
-  //       setStudentTodos(filteredStudents);
-  //       localStorage.setItem("studentTodo", JSON.stringify(filteredStudents));
-  //       toast.success("Student deleted successfully");
-  //     }
-  //   } catch (error) {
-  //     toast.error(error.response?.data?.message || "Failed to delete student");
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   const fetchStudentData = async () => {
-  //     try {
-  //       const response = await axios.get(`http://localhost:5000/Student/Students/${courseId}`); // Adjust the endpoint as necessary
-  //       const formattedStudents = response.data.map(student => ({
-  //         id: student._id,
-  //         courseId: student.courseId,
-  //         text: { studentName: student.studentName, rollNumber: student.rollNumber }
-  //       }));
-  //       setStudentTodos(formattedStudents);
-  //     } catch (error) {
-  //       toast.error(error.response?.data?.message || "Failed to fetch students");
-  //     }
-  //   };
-  
-  //   fetchStudentData();
-  // }, [courseId]); // Run this effect when courseId changes
-  
-
-  // // filter student according to the course
-  // const filterStudent = studentTodos.filter((student) => student.courseId === courseId)
 
   
   /* ============================================================================================================ */
 
 
   // Add Teacher Data
-  const addTeacherData = () => {
-    const addTeacherData = [...teacherTodo, { id: Date.now(), courseId: courseId, text: { teacherName: teacherName, teacherSubject: teacherSubject, teacherEmail: teacherEmail, teacherDepartment: teacherDepartment } }]
-    setTeacherTodo(addTeacherData)
-    localStorage.setItem("teacherTodo", JSON.stringify(addTeacherData))
-    setTeacherEmail("")
-    setTeacherName("")
-    setTeacherSubject("")
-    setTeacherDepartment("")
-  }
 
-  // Delete the teacher data
-  const deleteTeacherData = (id) => {
-    const deleteTeacherData = teacherTodo.filter((teacher) => teacher.id !== id)
-    setTeacherTodo(deleteTeacherData)
-    localStorage.setItem('teacherTodo', JSON.stringify(deleteTeacherData))
-  }
-
-  // filter teacher according to the course
-  const filterTeacher = teacherTodo.filter((teacher) => teacher.courseId === courseId)
-
-  // UseEffect for the subject data
+  // UseEffect for the subject data and student data
   useEffect(() => {
       fetchSubjectData()
+      fetchStudentData()
   }, [])
 
   // UseEffect for the student data
@@ -288,7 +218,7 @@ const CourseInformation = () => {
           <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
             <img className='mx-auto my-4 w-20 h-20' src={teacher} alt="teacher" />
             <span>Total Teachers</span><br />
-            <span className='text-green-700 font-bold'>{studentTodos.filter(teacher => teacher.courseId === courseId).length}</span>
+            <span className='text-green-700 font-bold'>0</span>
           </div>
         </div>)}
 
@@ -326,6 +256,7 @@ const CourseInformation = () => {
                 </thead>
                 <tbody>
                   {
+               
                     filterSubject.map((subjectTodo) => (
                       <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`} key={subjectTodo._id}>
                         <td className='px-6 py-4 text-black font-bold'>{subjectTodo.text.subName}</td>
@@ -349,20 +280,8 @@ const CourseInformation = () => {
 
         {activeTab === "students" && (
           <>
-            <div className={`modal backdrop-blur-3xl text-black flex flex-col justify-around  border-black-900 shadow-2xl shadow-black-900 mx-auto w-96 mt-6  md:px-0 `}>
-              <div className={`${isModalOpen ? "hidden" : "block"} px-10 mt-10 border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
-                <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
-                <input required type="text" name='student name' placeholder='Student Name*' value={studentName} onChange={(e) => setStudentName(e.target.value)} className={`rounded-lg font-5xl mt-5 mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
-                <input required type="text" name='student code' placeholder='Roll Number*' value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-12 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>
-                  <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                </svg>
-                {/* <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 cursor-pointer`} onClick={() => { if (studentName && rollNumber) { addStudentData(); setIsModalOpen(false); } else { alert("First enter the Subject name and Subject Code") } }} disabled={!studentName || !rollNumber} >Create Student</button> */}
-              </div>
-            </div>
 
-            <div className={` ${isModalOpen ? "block" : "hidden"}  mx-5 px-10`}>
-              <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 absolute bottom-0 mx-96`} onClick={handleFormToggle}>Add Student</button>
+            <div className={` mx-5 px-10`}>
               <h1 className='text-3xl mb-2'>Student List :</h1>
               <table className={`w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400`}>
                 <thead className='text-xl text-gray-900  bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
@@ -372,16 +291,16 @@ const CourseInformation = () => {
                     <th scope="col" className='px-6 py-3'>Action</th>
                   </tr>
                 </thead>
-                {/* <tbody>
+                <tbody>
                   {
                     filterStudent.map((studentTodo) => (<>
                       <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`} key={studentTodo.id}>
-                        <td className='px-6 py-4 text-black font-bold'>{studentTodo.text.studentName}</td>
-                        <td className='px-6 py-4 text-black font-bold'>{studentTodo.text.rollNumber}</td>
+                        <td className='px-6 py-4 text-black font-bold'>{studentTodo.text?.name || 'N/A'}</td>
+                        <td className='px-6 py-4 text-black font-bold'>{studentTodo.text?.rollNum || 'N/A'}</td>
                         <td className='flex'>
-                          <button className='bg-green-700 hover:bg-green-800 mt-2 text-white py-2 px-4 mx-2 rounded-lg' onClick={() => { handleStudentRoute(filterStudent) }}> View </button>
+                          <button className='bg-green-700 hover:bg-green-800 mt-2 text-white py-2 px-4 mx-2 rounded-lg' onClick={() => { handleStudentRoute(studentTodo) }}> View </button>
                           <button className='bg-yellow-500 hover:bg-yellow-600 mt-2 text-black py-2 px-4 mx-2 rounded-lg'> Attendence </button>
-                          <button onClick={() => deleteStudentTodo(studentTodo.id)}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-9 text-red-700">
+                          <button ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-9 text-red-700">
                             <path d="M10.375 2.25a4.125 4.125 0 1 0 0 8.25 4.125 4.125 0 0 0 0-8.25ZM10.375 12a7.125 7.125 0 0 0-7.124 7.247.75.75 0 0 0 .363.63 13.067 13.067 0 0 0 6.761 1.873c2.472 0 4.786-.684 6.76-1.873a.75.75 0 0 0 .364-.63l.001-.12v-.002A7.125 7.125 0 0 0 10.375 12ZM16 9.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" />
                           </svg>
                           </button>
@@ -389,7 +308,7 @@ const CourseInformation = () => {
                       </tr>
                     </>))
                   }
-                </tbody> */}
+                </tbody>
               </table>
             </div>
 
