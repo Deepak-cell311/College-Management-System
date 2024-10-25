@@ -5,11 +5,10 @@ const Sclass = require('../models/sclassSchema.js');
 
 const studentRegister = async (req, res) => {
     try {
-        const sclassobj = await Sclass.findOne({ sclassName: req.body.sclassName });
+        const sclassobj = await Sclass.findOne({ sclassName: req.body.course});
         if (!sclassobj) {
-            return res.status(400).json({ message: 'Course does not exist' });
+            return res.status(400).json({ message: 'Class not exists' });
         }
-
         const existingStudent = await Student.findOne({
             rollNum: req.body.rollNum,
             sclassName: sclassobj._id,
@@ -17,10 +16,8 @@ const studentRegister = async (req, res) => {
         if (existingStudent) {
             return res.status(400).send({ message: 'Roll Number already exists' });
         }
-
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(req.body.password, salt);
-
         const student = new Student({
             ...req.body,
             password: hashedPass,
@@ -97,7 +94,7 @@ const classStudents = async (req, res) => {
             res.send({ message: "No student found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        res.status(500).json({message: "An error occured", err: err.message});
     }
 };
 
@@ -112,7 +109,7 @@ const deleteStudent = async (req, res) => {
 
 const deleteStudents = async (req, res) => {
     try {
-        const result = await Student.deleteMany({})
+        const result = await Student.deleteMany({ })
         if (result.deletedCount === 0) {
             res.send({ message: "No students found to delete" })
         } else {
@@ -147,9 +144,8 @@ const updateStudent = async (req, res) => {
             { new: true })
         result.password = undefined;
         res.send(result)
-    } catch (error) {
-        console.error("Error in studentAttendance:", error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    } catch (err) {
+        res.status(500).json(err);
     }
 };
 
@@ -160,9 +156,8 @@ const updateExamResult = async (req, res) => {
         if (!student) {
             return res.send({ message: 'Student not found' });
         }
-        const subId = subName._id || subName;
         const existingResult = student.examResult.find(
-            (result) => result.subName.toString() === subId .toString()
+            (result) => result.subName.toString() === subName
         );
         if (existingResult) {
             existingResult.marksObtained = marksObtained;
@@ -172,8 +167,7 @@ const updateExamResult = async (req, res) => {
         const result = await student.save();
         return res.send(result);
     } catch (error) {
-        console.error("Error in studentAttendance:", error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+        res.status(500).json(error);
     }
 };
 
@@ -206,8 +200,51 @@ const studentAttendance = async (req, res) => {
     }
 };
 
+const studentAttendances = async (req, res) => {
+    try {
+        const subject = await Subject.findById(req.body.subjectId);
+        if (!subject) {
+            return res.send({ message: 'Subject Not Exists' });
+        }
+        const attendances = req.body.attendanceData.map((singledata) => ({
+            subName: subject.subName,
+            status: singledata.status,
+            date: singledata.date,
+            student: singledata.studentId,
+        }));
+        let i = 0;
+        while (attendances[i] !== undefined) {
+            let student = await Student.findById(attendances[i].student);
+            let status = attendances[i].status;
+            let date = attendances[i].date;
+            let subName = attendances[i].subName;
+            const existingAttendance = student.attendance.find(
+                (a) => a.date.toDateString() === new Date(date).toDateString() && a.subName.toString() === subName
+            );
+            if (existingAttendance) {
+                existingAttendance.status = status;
+            } else {
+                const attendedSessions = student.attendance.filter(
+                    (a) => a.subName.toString() === subName
+                ).length;
+                if (attendedSessions >= subject.sessions) {
+                    return res.send({ message: 'Maximum attendance limit reached' });
+                }
+                student.attendance.push({ date, status, subName });
+            }
+            const result = await student.save();
+            i++;
+        }
+        return res.send("Attendance Marked Successfully!!")
+    }
+    catch (error) {
+        console.error("Error in studentAttendance:", error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+};
+
 const clearAllStudentsAttendanceBySubject = async (req, res) => {
-    const sub = await Subject.findById(req.params.id);
+    const sub = await Subject.findById( req.params.id );
     try {
         const subName = sub.subName;
         const result = await Student.updateMany(
@@ -237,7 +274,7 @@ const removeStudentAttendanceBySubject = async (req, res) => {
         const subName = req.body.subName;
         const result = await Student.updateOne(
             { _id: studentId },
-            { $pull: { attendance: { subName: subName } } }
+            { $pull: { attendance: { subName : subName } } }
         );
         return res.send(result);
     } catch (err) {
@@ -258,5 +295,4 @@ const removeStudentAttendance = async (req, res) => {
     }
 };
 
-
-module.exports = { studentRegister, studentLogIn, getStudents, classStudents, getStudentDetail, deleteStudents, deleteStudent, updateStudent, studentAttendance, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance };
+module.exports = { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance, classStudents};
