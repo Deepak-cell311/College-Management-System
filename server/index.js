@@ -1,8 +1,8 @@
-const express = require("express")
-const cors = require("cors")
+const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
-const bodyParser = require("body-parser")
+const bodyParser = require("body-parser");
 const app = express()
 const adminRoute = require("./routes/adminRoute.js")
 const complainRoute = require("./routes/complainRoute.js")
@@ -22,13 +22,14 @@ app.use(express.json())
 app.use(cors())
 
 mongoose
-    .connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(process.env.MONGO_URL, {})
     .then(console.log("Connected to MongoDB"))
     .catch((err) => console.log("NOT CONNECTED TO NETWORK", err))
 
 app.get('/',(req,res)=>{
     res.send(`API is running...`)
 });
+
 app.use('/Admin', adminRoute);
 app.use('/Complain', complainRoute);
 app.use('/Notice', noticeRoute);

@@ -85,19 +85,6 @@ const getStudentDetail = async (req, res) => {
     }
 };
 
-const classStudents = async (req, res) => {
-    try {
-        let student = await Student.find({ sclassName: req.params.id })
-        if (student.length > 0) {
-            res.send(student)
-        } else {
-            res.send({ message: "No student found" });
-        }
-    } catch (err) {
-        res.status(500).json({message: "An error occured", err: err.message});
-    }
-};
-
 const deleteStudent = async (req, res) => {
     try {
         const result = await Student.findByIdAndDelete(req.params.id)
@@ -295,4 +282,4 @@ const removeStudentAttendance = async (req, res) => {
     }
 };
 
-module.exports = { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance, classStudents};
+module.exports = { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance};

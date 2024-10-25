@@ -23,9 +23,8 @@ const teacherRegister = async (req, res) => {
             result.password = undefined;
             res.send(result);
         }
-    } catch (error) {
-        console.error("Error in studentAttendance:", error);
-        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    } catch (err) {
+        res.status(500).json(err);
     }
 };
 
@@ -173,8 +172,5 @@ const teacherAttendance = async (req, res) => {
         res.status(500).json(err)
     }
 };
-
-
-
 
 module.exports = { teacherRegister, teacherLogIn, getTeachers, getTeacherDetail, updateTeacherSubject, deleteTeacher, deleteTeachers, deleteTeachersByClass, teacherAttendance };

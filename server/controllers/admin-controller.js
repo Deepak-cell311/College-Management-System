@@ -7,7 +7,6 @@ const Subject = require('../models/subjectSchema.js');
 const Notice = require('../models/noticeSchema.js');
 const Complain = require('../models/complainSchema.js');
 
-
 const adminLogIn = async (req, res) => {
     if (req.body.email && req.body.password) {
         let admin = await Admin.findOne({ email: req.body.email });
@@ -39,7 +38,7 @@ const getAdminDetail = async (req, res) => {
     } catch (err) {
         res.status(500).json(err);
     }
-}
+};
 
 const deleteAdmin = async (req, res) => {
     try {
@@ -51,25 +50,21 @@ const deleteAdmin = async (req, res) => {
         await Notice.deleteMany({ college: req.params.id });
         await Complain.deleteMany({ college: req.params.id });
         res.send(result)
-    } catch (error) {
+    } catch (err) {
         res.status(500).json(err);
     }
-}
+};
 
 const updateAdmin = async (req, res) => {
     try {
-        if (req.body.password) {
-            const salt = await bcrypt.genSalt(10)
-            res.body.password = await bcrypt.hash(res.body.password, salt)
-        }
         let result = await Admin.findByIdAndUpdate(req.params.id,
             { $set: req.body },
             { new: true })
         result.password = undefined;
         res.send(result)
-    } catch (error) {
+    } catch (err) {
         res.status(500).json(err);
     }
-}
+};
 
 module.exports = { adminLogIn, getAdminDetail, deleteAdmin, updateAdmin };
