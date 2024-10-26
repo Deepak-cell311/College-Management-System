@@ -11,5 +11,4 @@ router.delete("/Teacher/:id", deleteTeacher);
 router.put("/TeacherSubject", updateTeacherSubject);
 router.post('/TeacherAttendance/:id', teacherAttendance);
 
-
 module.exports = router;
