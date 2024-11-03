@@ -53,7 +53,7 @@ Ensure you have the following installed on your local development machine:
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/your-username/college-management-system.git
+   git clone https://github.com/Deepak-cell311/college-management-system.git
    cd college-management-system
    ```
 
