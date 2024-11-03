@@ -185,7 +185,7 @@ Special thanks to all the contributors and open-source projects that helped insp
 
 ### Contact
 
-For any inquiries, you can reach me at [your-email@example.com](mailto:deshdeepakbajpai8@gmail.com).
+For any inquiries, you can reach me at [deshdeepakbajpai8@gmail.com](mailto:deshdeepakbajpai8@gmail.com).
 
 ---
 
