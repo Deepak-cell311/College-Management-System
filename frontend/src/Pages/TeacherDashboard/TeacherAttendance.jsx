@@ -6,6 +6,7 @@ const TeacherAttendance = () => {
     const [studentData, setStudentData] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [subjectId, setSubjectId] = useState([]);
+    const [classId, setClassId] = useState([]);
 
     console.log("Subject id: ", subjectId)
 
@@ -16,8 +17,11 @@ const TeacherAttendance = () => {
             const response = await axios.get(`http://192.168.149.125:5000/Teacher/Teacher/${teacherId}`)
             console.log("fetch teacher data: ",response.data)
             if (response.data) {
-                const teacherSubject = response.data.teachSubject._id
+                const teacherSubject = response.data.teachSubject._id;
+                const teacherClassId = response.data.teachSclass._id;
+
                 setSubjectId(teacherSubject)
+                setClassId(teacherClassId);
             } else {
                 toast.warning("Something went wrong")
             }
@@ -26,9 +30,13 @@ const TeacherAttendance = () => {
         }
     }
 
+    console.log("subjectId: ", subjectId)
+    console.log("classId: ", classId)
+
     const fetchStudentData = async () => {
+        if (!classId) return; // Only proceed if classId is set
         try {
-            const response = await axios.get(`http://192.168.149.125:5000/Student/ClassStudents/6704c0485811b5fa01f8b288`);
+            const response = await axios.get(`http://192.168.149.125:5000/Student/ClassStudents/${classId}`);
             if (Array.isArray(response.data)) {
                 const formattedStudents = response.data.map((student) => ({
                     _id: student._id,
@@ -42,14 +50,20 @@ const TeacherAttendance = () => {
                 toast.info(response.data.message);
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "An error occurred while fetching students");
+            console.error(error)
         }
     };
 
     useEffect(() => {
         getTeacherDetail()
-        fetchStudentData();
+        // fetchStudentData();
     }, []);
+
+    useEffect(() => {
+        if (classId) {
+            fetchStudentData();
+        }
+    }, [classId]);
 
     const handleAttendanceChange = (id) => {
         setStudentData((prevData) =>
@@ -132,6 +146,9 @@ const TeacherAttendance = () => {
                         <thead className="bg-gray-50 dark:bg-gray-700">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    S.No
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                     Roll No
                                 </th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
@@ -143,11 +160,14 @@ const TeacherAttendance = () => {
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800">
-                            {studentData.map((student) => (
+                            {studentData.map((student, index) => (
                                 <tr
                                     key={student._id}
                                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
+                                        {index + 1 || "N/A"}
+                                    </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">
                                         {student.rollNum || "N/A"}
                                     </td>
