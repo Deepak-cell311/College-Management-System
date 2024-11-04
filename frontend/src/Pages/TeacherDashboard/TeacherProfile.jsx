@@ -11,6 +11,7 @@ const TeacherProfile = () => {
     const teacherId = JSON.parse(localStorage.getItem('Teacher'))?._id;
     console.log("Teacher ID: ", teacherId);
     console.log("teacherData: ", teacherData)
+    
 
     useEffect(() => {
         const fetchTeacherData = async () => {
@@ -64,7 +65,7 @@ const TeacherProfile = () => {
 
     return (
         <div className="flex items-center justify-center min-h-screen w-full bg-gray-100 dark:bg-gray-900">
-            <div className="bg-white dark:bg-zinc-800 shadow-lg rounded-lg p-8 max-w-md w-full">
+            <div className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-8 max-w-md w-full">
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">Your Profile</h2>
                 <div className="flex items-center flex-col mb-4">
                     <svg

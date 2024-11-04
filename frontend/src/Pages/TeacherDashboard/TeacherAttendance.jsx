@@ -5,6 +5,26 @@ import { toast } from 'react-toastify';
 const TeacherAttendance = () => {
     const [studentData, setStudentData] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [subjectId, setSubjectId] = useState([]);
+
+    console.log("Subject id: ", subjectId)
+
+    const teacherId = JSON.parse(localStorage.getItem('Teacher'))?._id;
+
+    const getTeacherDetail = async () => {
+        try {
+            const response = await axios.get(`http://192.168.149.125:5000/Teacher/Teacher/${teacherId}`)
+            console.log("fetch teacher data: ",response.data)
+            if (response.data) {
+                const teacherSubject = response.data.teachSubject._id
+                setSubjectId(teacherSubject)
+            } else {
+                toast.warning("Something went wrong")
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     const fetchStudentData = async () => {
         try {
@@ -14,7 +34,8 @@ const TeacherAttendance = () => {
                     _id: student._id,
                     rollNum: student.rollNum,
                     name: student.name,
-                    present: false
+                    present: false,
+                    attendance: student.attendance
                 }));
                 setStudentData(formattedStudents);
             } else {
@@ -22,19 +43,17 @@ const TeacherAttendance = () => {
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "An error occurred while fetching students");
-            console.error(error.response);
         }
     };
 
     useEffect(() => {
+        getTeacherDetail()
         fetchStudentData();
     }, []);
 
     const handleAttendanceChange = (id) => {
         setStudentData((prevData) =>
-            prevData.map((student) =>
-                student._id === id ? { ...student, present: !student.present } : student
-            )
+            prevData.map((student) => student._id === id ? { ...student, present: !student.present } : student)
         );
     };
 
@@ -43,51 +62,54 @@ const TeacherAttendance = () => {
     };
 
     const handleSubmit = async () => {
-        if (studentData.length === 0) {
-            toast.warning("No students found in the class.");
+        if (!studentData.some(student => student.present)) {
+            toast.warning("Please select at least one student to submit attendance.");
             return;
         }
-
-        setIsSubmitting(true);
-        const currentDate = new Date().toISOString();
-        const subjectId = "6707f384ca890fd8648604a9"; 
-
+    
         try {
-            
+            setIsSubmitting(true);
             const attendanceData = studentData.map(student => ({
                 studentId: student._id,
+                studentName: student.name,
                 status: student.present ? "Present" : "Absent",
-                date: currentDate,
-                subjectId: subjectId
+                date: new Date().toISOString(),
+                subjectId: subjectId,
             }));
-
+    
             const response = await axios.put(`http://192.168.149.125:5000/Student/StudentAttendances`, {
-                    attendanceData,
-                    subjectId
-                }
-            );
-            console.log("response: ", response.data)
-
+                attendanceData,
+                subjectId: subjectId,
+            });
+            console.log("Response from submission:", response.data);
+    
             if (response.data.success) {
                 toast.success("Attendance submitted successfully!");
-                setStudentData(prevData => prevData.map(student => ({ ...student, present: false })));
-                fetchStudentData();
+    
+                // Reset present status for students and then fetch updated data
+                setStudentData(prevData => prevData.map(student => ({ ...student, present: false })))
+                    .then(() => {
+                        fetchStudentData(); // This will now run after the state has updated
+                        console.log("Updated student data after submission:", studentData);
+                    });
             } else {
-                toast.warning(response.data.message || "Submission completed with some issues");
+                toast.success("Attendance submitted successfully!");
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Failed to submit attendance");
-            console.error("Attendance submission error:", error);
         } finally {
             setIsSubmitting(false);
         }
     };
+    
+
+
 
     return (
         <div className="w-full flex flex-col items-center justify-center min-h-screen p-5 bg-gray-100 dark:bg-gray-900">
             <div className="w-full max-w-4xl">
-                <h2 className="text-4xl font-bold mb-6 text-gray-900 dark:text-white text-center">
-                    Student Attendance
+                <h2 className="text-5xl font-bold mb-6 text-gray-900 dark:text-white text-center">
+                    <u>Student Attendance</u>
                 </h2>
 
                 <div className="mb-4 flex justify-end space-x-4">
@@ -122,8 +144,8 @@ const TeacherAttendance = () => {
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800">
                             {studentData.map((student) => (
-                                <tr 
-                                    key={student._id} 
+                                <tr
+                                    key={student._id}
                                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200">

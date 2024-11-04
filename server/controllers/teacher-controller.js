@@ -23,8 +23,9 @@ const teacherRegister = async (req, res) => {
             result.password = undefined;
             res.send(result);
         }
-    } catch (err) {
-        res.status(500).json(err);
+    }  catch (error) {
+        console.error("Error in studentAttendance:", error);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
 };
 

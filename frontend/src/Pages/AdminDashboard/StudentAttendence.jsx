@@ -44,9 +44,9 @@ const StudentAttendence = () => {
     console.log("attendanceTodo", attendanceTodo)
     return (
         <>
-            <div className='bg-zinc-800 w-full'>
+            <div className=' w-full'>
                 <div className={`modal backdrop-blur-3xl  flex flex-col justify-around  border-black-900 mx-auto w-96  md:px-0 `}>
-                    <h1 className='text-center text-3xl -mx-20  mt-10'> <b>Student Name: </b> {showSubjectData.name} </h1>
+                    <h1 className='text-center text-3xl -mx-20  mt-10'> <b>Student Name</b> {showSubjectData.name} </h1>
                     <form onSubmit={handleSubmit(handleOnSubmitAttendance, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 py-4 bg-white text-black  border-2  flex flex-col justify-center mt-5 `}>
                         <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
 

@@ -12,7 +12,7 @@ const TeacherRegister = () => {
   const { register, handleSubmit } = useForm();
 
   const handleOnSubmit = async (data) => {
-
+    console.log(data)
     try {
       const response = await axios.post("http://localhost:5000/Teacher/TeacherReg", {
         name: data.name,

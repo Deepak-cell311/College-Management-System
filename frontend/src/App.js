@@ -4,7 +4,6 @@ import Login from './Pages/Login'
 import AuthProvider, { useAuth } from './Context/authProvider.js';
 import { ToastContainer } from 'react-toastify';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { ProtectedRoute } from './Context/authProvider.js';
 import Register from './Pages/Register';
 import AdminDashBoard from './Pages/AdminDashboard/AdminDashBoard';
 import AdminHome from './Pages/AdminDashboard/AdminHome';
@@ -36,6 +35,8 @@ import TeacherDashboard from './Pages/TeacherDashboard/TeacherDashboard.jsx';
 import TeacherProfile from './Pages/TeacherDashboard/TeacherProfile.jsx';
 import TeacherAttendance from './Pages/TeacherDashboard/TeacherAttendance.jsx';
 import TeacherSchedule from './Pages/TeacherDashboard/TeacherSchedule.jsx';
+import TaketeacherAttendance from './Pages/AdminDashboard/TaketeacherAttendance.jsx';
+import TeacherAttendanceDetail from './Pages/AdminDashboard/teacherAttendanceDetail.jsx';
 
 const App = () => {
   return (
@@ -81,6 +82,8 @@ const AdminRoutes = () => {
         <Route path='courses/information' element={<CourseInformation />} />
         <Route path='subjects' element={<AdminSubject />} />
         <Route path='courses/information/subjectInformation' element={<SubjectInformation />} />
+        <Route path='teacherAttendance' element={<TaketeacherAttendance />} />
+        <Route path='teacherAttendanceDetail' element={<TeacherAttendanceDetail />} />
         <Route path='subjectInformation/attendence' element={<StudentAttendence />} />
         <Route path='courses/information/courseStudentDetail' element={<CourseStudentDetail />} />
         <Route path='students' element={<AdminStudent />} />
@@ -93,6 +96,7 @@ const AdminRoutes = () => {
   )
 }
 
+// New component for student routes
 const StudentRoutes = () => {
   return (
     <>
@@ -110,6 +114,8 @@ const StudentRoutes = () => {
   )
 }
 
+
+// New component for teacher routes
 const TeacherRoutes = () => {
   const {authTeacher} = useAuth();
   console.log('Auth Teacher:', authTeacher);
@@ -121,7 +127,6 @@ const TeacherRoutes = () => {
   }
   return (
     <>
-      {/* <ProtectedRoute user={authTeacher}> */}
         <Routes>
           <Route path='/' element={<TeacherDashboard />}>
             <Route index element={<TeacherHome />} />
@@ -132,7 +137,6 @@ const TeacherRoutes = () => {
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
-      {/* </ProtectedRoute> */}
     </>
   )
 }

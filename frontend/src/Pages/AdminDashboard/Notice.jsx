@@ -95,7 +95,7 @@ const Notice = () => {
 
     return (
         <>
-            <div className=' w-full bg-zinc-800  '>
+            <div className=' w-full '>
                 <form onSubmit={handleSubmit(handleSubmitNotice, onError)} className={`modal backdrop-blur-3xl text-black flex flex-col justify-around  border-black-900 shadow-2xl shadow-black-900 mx-auto w-96 bg-white  md:px-0  mt-14`}>
                     <div className={`${isModalOpen ? "hidden" : "block"} px-10  border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
                         <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
@@ -136,29 +136,25 @@ const Notice = () => {
                     </div>
                 </form>
 
-                {isModalOpen && (<div>
-                    <h1 className='text-5xl text-center mb-10 '><u>Notices</u></h1>
-                    {/* <div className='bg-black text-white py-4 px-4 w-full flex justify-between '>
-                        <span>Notice Title</span>
-                        <span>Notice Detail</span>
-                        <span>Notice Date</span>
-                        <span>Action</span>
-                    </div> */}
-                    <table className={`w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 `}>
-                        <thead className='text-xl text-gray-900  bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
-                            <th scope="col" className='px-6 py-3'>Title</th>
-                            <th scope="col" className='px-6 py-3'>Detail</th>
-                            <th scope="col" className='px-6 py-3'> Date</th>
-                            <th scope="col" className='px-6 py-3'>Action</th>
+                <h1  className={`${isModalOpen ? "block" : "hidden"} text-5xl font-bold text-center mb-10 `}><u>Notices</u></h1>
+                {isModalOpen && (<div className='bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden'>
+                    <table className={`min-w-full divide-y divide-gray-200 dark:divide-gray-700`}>
+                        <thead className='bg-gray-50 dark:bg-gray-700'>
+                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>S.No</td>
+                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Title</td>
+                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Detail</td>
+                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'> Date</td>
+                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Action</td>
                         </thead>
-                        <tbody>
+                        <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
                             {
-                                noticeTodo.map((noticeTodos) => (
-                                    <tr className={`odd:bg-white odd:dark:bg-gray-400 even:bg-gray-50 even:dark:bg-gray-500 border-b dark:border-gray-700`} key={noticeTodos.id}>
-                                        <th scope='row' className='px-6 py-4 font-bold text-black  whitespace-nowrap text-bold'>{noticeTodos.text.noticeTitle}</th>
-                                        <td className='px-6 py-4 text-black font-bold'>{noticeTodos.text.noticeDetail}.</td>
-                                        <td className='px-6 py-4 text-black font-bold'>{noticeTodos.text.noticeDate}</td>
-                                        <td className='px-6 py-4 text-black font-bold'> <Trash2 color="#ff0000" className="cursor-pointer" onClick={() => deleteNoticeTodo(noticeTodos._id)} /></td>
+                                noticeTodo.map((noticeTodos, index) => (
+                                    <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={noticeTodos.id}>
+                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
+                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{noticeTodos.text.noticeTitle}</td>
+                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{noticeTodos.text.noticeDetail}.</td>
+                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{noticeTodos.text.noticeDate}</td>
+                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'> <Trash2 color="#ff0000" className="cursor-pointer" onClick={() => deleteNoticeTodo(noticeTodos._id)} /></td>
                                     </tr>
                                 ))
                             }

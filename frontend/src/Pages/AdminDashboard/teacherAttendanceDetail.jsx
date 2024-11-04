@@ -1,26 +1,29 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import CanvasJSReact from '@canvasjs/react-charts';
-import { format } from 'date-fns'
+import { format } from 'date-fns';
 import axios from 'axios';
-import { ColorRing } from 'react-loader-spinner'
+import { ColorRing } from 'react-loader-spinner';
 import { useLocation } from 'react-router-dom';
 
-const CourseStudentDetail = () => {
+const TeacherAttendanceDetail = () => {
     const CanvasJSChart = CanvasJSReact.CanvasJSChart;
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activeTab, setActiveTab] = useState("attendance");
-    const [studentData, setStudentData] = useState([]);
+    const [teacherData, setTeacherData] = useState([]);
     const location = useLocation();
-    const { studentTodo } = location.state || {};
+    const { teacherId } = location.state || {};
 
-    const totalClasses = studentData.length > 0 ? studentData[0].attendance.length : 0;
-    const totalPresent = studentData.length > 0 ? studentData[0].attendance.filter(att => att.status === "Present").length : 0;
+    // Calculate total classes and present days
+    const totalClasses = teacherData[0]?.attendance?.length || 0;
+    const totalPresent = teacherData[0]?.attendance?.filter(att => att.status === "Present").length || 0;
     const attendancePercentage = totalClasses > 0 ? ((totalPresent / totalClasses) * 100).toFixed(2) + "%" : "0%";
+    console.log("attendancePercentage: ", attendancePercentage)
 
+    // Chart options for attendance
     const attendanceChartOptions = {
         animationEnabled: true,
-        theme: "dark1",
+        theme: "dark2",
         title: { text: "Attendance Chart" },
         data: [{
             type: "pie",
@@ -32,28 +35,13 @@ const CourseStudentDetail = () => {
         }]
     };
 
-    const marksChartOptions = {
-        animationEnabled: true,
-        theme: "dark1",
-        title: { text: "Marks" },
-        data: [{
-            type: "pie",
-            indexLabel: "{label}: {y}%",
-            dataPoints: studentData.length > 0
-                ? studentData[0].examResult.map(item => ({
-                    y: item.marksObtained,
-                    label: item.subName
-                }))
-                : []
-        }]
-    };
-
-    const fetchStudentData = async () => {
+    // Fetch teacher data based on teacherId
+    const fetchTeacherData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/Student/Student/${studentTodo}`);
+            const response = await axios.get(`http://localhost:5000/Teacher/Teacher/${teacherId}`);
             if (response.data) {
-                setStudentData([{
+                setTeacherData([{
                     ...response.data,
                     attendance: response.data.attendance.map(att => ({
                         ...att,
@@ -62,23 +50,25 @@ const CourseStudentDetail = () => {
                 }]);
             }
         } catch (error) {
-            setError("Error fetching student data.");
+            setError("Error fetching teacher data.");
         } finally {
             setLoading(false);
         }
     };
-    const handleTabChange = (tab) => setActiveTab(tab)
+
+    // Handle tab change
+    const handleTabChange = (tab) => setActiveTab(tab);
 
     useEffect(() => {
-        fetchStudentData();
-    }, [studentTodo]);
+            fetchTeacherData();
+    }, []);
 
     return (
         <div className='container mx-auto px-5 py-10 dark:bg-gray-900 bg-gray-100 min-h-screen'>
             {/* Tab Navigation */}
             <nav className='fixed top-0 w-full left-0 mx-64 right-20 z-10 bg-gray-900 rounded-lg shadow-lg'>
-                <ul className='flex  py-5'>
-                    {['attendance', 'marks'].map((tab) => (
+                <ul className='flex py-5'>
+                    {['attendance'].map((tab) => (
                         <li
                             key={tab}
                             onClick={() => handleTabChange(tab)}
@@ -108,7 +98,8 @@ const CourseStudentDetail = () => {
                     <>
                         {activeTab === "attendance" ? (
                             <>
-                                <h1 className='text-5xl font-extrabold text-center text-gray-200 mb-10'>Attendance</h1>
+                                <h1 className='text-5xl font-extrabold text-center text-gray-200 mb-10'><u>Attendance</u></h1>
+                                <h1 className='mb-3 text-xl italic font-bold'>Overall Percentage: {attendancePercentage}</h1>
                                 <div className='flex flex-col lg:flex-row gap-8 items-start'>
                                     <div className='flex-1'>
                                         <CanvasJSChart options={attendanceChartOptions} />
@@ -122,7 +113,7 @@ const CourseStudentDetail = () => {
                                                 </tr>
                                             </thead>
                                             <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                                                {studentData[0].attendance.map((att, index) => (
+                                                {teacherData[0]?.attendance?.map((att, index) => (
                                                     <tr key={index} className='hover:bg-gray-700 transition'>
                                                         <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{att.date}</td>
                                                         <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{att.status}</td>
@@ -133,34 +124,7 @@ const CourseStudentDetail = () => {
                                     </div>
                                 </div>
                             </>
-                        ) : (
-                            <>
-                                <h1 className='text-5xl font-extrabold text-center text-gray-200 mb-10'>Marks</h1>
-                                <div className='flex flex-col lg:flex-row gap-8 items-start'>
-                                    <div className='flex-1'>
-                                        <CanvasJSChart options={marksChartOptions} />
-                                    </div>
-                                    <div className='flex-1'>
-                                        <table className='min-w-full divide-y divide-gray-200 dark:divide-gray-700'>
-                                            <thead className='bg-gray-50 dark:bg-gray-700'>
-                                                <tr>
-                                                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Subject Name</th>
-                                                    <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Marks</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                                                {studentData[0].examResult.map((result, index) => (
-                                                    <tr key={index} className='hover:bg-gray-700 transition'>
-                                                        <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{result.subName}</td>
-                                                        <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{result.marksObtained}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </>
-                        )}
+                        ) : null}
                     </>
                 )}
             </div>
@@ -168,4 +132,4 @@ const CourseStudentDetail = () => {
     );
 }
 
-export default CourseStudentDetail;
+export default TeacherAttendanceDetail;

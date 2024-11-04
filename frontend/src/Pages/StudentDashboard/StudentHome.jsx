@@ -14,7 +14,7 @@ const StudentHome = () => {
     const [subjectCount, setSubjectCount] = useState(0);
     const [teacherCount, setTeacherCount] = useState(0);
 
-
+    // Count number of Subject
     const fetchSubjectCount = async () => {
         try {
             const studentData = localStorage.getItem("Student");
@@ -26,7 +26,7 @@ const StudentHome = () => {
             const student = JSON.parse(studentData);
             const sclassName = student.sclassName?._id;
 
-            const response = await axios.get(`http://localhost:5000/Subject/ClassSubjects/${sclassName}`); 
+            const response = await axios.get(`http://localhost:5000/Subject/ClassSubjects/${sclassName}`);
             if (Array.isArray(response.data)) {
                 setSubjectCount(response.data.length);
             } else {
@@ -36,6 +36,8 @@ const StudentHome = () => {
             toast.error(error.response?.data?.message || "An error occurred while fetching subjects.");
         }
     };
+    
+    // Count number of student
     const fetchStudentCount = async () => {
         try {
             const studentData = localStorage.getItem("Student");
@@ -45,15 +47,38 @@ const StudentHome = () => {
             }
 
             const student = JSON.parse(studentData);
-            const sclassName = student.sclassName._id;
+            const sclassName = student.sclassName?._id;
+
             console.log("student: ", sclassName)
 
-            const response = await axios.get(`http://localhost:5000/Student/Student/${sclassName}`); 
+            const response = await axios.get(`http://localhost:5000/Student/ClassStudents/${sclassName}`);
             console.log("student response: ", response.data)
             if (Array.isArray(response.data)) {
                 setStudentCount(response.data.length);
-            } else {
-                toast.error("Failed to fetch subjects.");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || "An error occurred while fetching subjects.");
+        }
+    };
+
+    // Count number of Teacher
+    const fetchTeacherCount = async () => {
+        try {
+            const studentData = localStorage.getItem("Student");
+            if (!studentData) {
+                toast.error("No student data found. Please log in.");
+                return;
+            }
+
+            const student = JSON.parse(studentData);
+            const sclassName = student.sclassName?._id;
+
+            console.log("student: ", sclassName)
+
+            const response = await axios.get(`http://localhost:5000/Student/ClassStudents/${sclassName}`);
+            console.log("student response: ", response.data)
+            if (Array.isArray(response.data)) {
+                setStudentCount(response.data.length);
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "An error occurred while fetching subjects.");
@@ -80,7 +105,7 @@ const StudentHome = () => {
         }
 
         // Fetching teacher count
-        const teachersData = localStorage.getItem("teacherTodo");
+        const teachersData = localStorage.getItem("Teacher");
         if (teachersData) {
             const parsedTeachers = JSON.parse(teachersData);
             setTeacherCount(Array.isArray(parsedTeachers) ? parsedTeachers.length : 0);
@@ -91,27 +116,28 @@ const StudentHome = () => {
 
     return (
         <>
-            <div className="w-full flex flex-wrap md:flex-nowrap md:flex-col h-auto text-3xl bg-zinc-800">
+            <div className="w-full flex flex-wrap md:flex-nowrap md:flex-col h-auto text-3xl">
                 <div className='flex w-full flex-wrap md:flex-nowrap justify-center'>
-                    <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
-                        <img className='mx-auto my-4 w-20 h-20' src={student} alt="student" />
-                        <span className=''>Total Students</span><br />
-                        <span className='text-green-600'>{studentCount}</span>
+
+                    <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
+                        <img className='mx-auto my-4 w-20 h-20' src={student} alt="fee collection" />
+                        <span>Total Students</span>
+                        <span className='text-2xl font-bold text-green-600'>{studentCount}</span>
                     </div>
-                    <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
-                        <img className='mx-auto my-4 w-20 h-20' src={courses} alt="courses" />
-                        <span >Total Subject</span><br />
-                        <span className='text-green-600'>{subjectCount}</span>
+                    <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
+                        <img className='mx-auto my-4 w-20 h-20' src={courses} alt="fee collection" />
+                        <span>Total Subject</span>
+                        <span className='text-2xl font-bold text-green-600'>{subjectCount}</span>
                     </div>
-                    <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
-                        <img className='mx-auto my-4 w-20 h-20' src={teacher} alt="teacher" />
-                        <span>Total Teachers</span><br />
-                        <span className='text-green-600'>{teacherCount}</span>
-                    </div>
-                    <div className='box-1 h-64 mx-5 my-2 mt-20  md:h-60 md:w-1/2  md:m-5 flex flex-col items-center  border-2 border-zinc-400 shadow-2xl shadow-black-900 px-10 md:px-0 bg-zinc-700 rounded-3xl'>
+                    {/* <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
+                        <img className='mx-auto my-4 w-20 h-20' src={teacher} alt="fee collection" />
+                        <span>Total Teacher</span>
+                        <span className='text-2xl font-bold text-green-600'>{teacherCount}</span>
+                    </div> */}
+                    <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
                         <img className='mx-auto my-4 w-20 h-20' src={fee} alt="fee collection" />
-                        <span>Total Fees</span><br />
-                        <span className='text-green-600'>24,000</span>
+                        <span>Total Fees</span>
+                        <span className='text-2xl font-bold text-green-600'>24, 000</span>
                     </div>
                 </div>
                 <span className=' mt-20 -mb-14 mx-5 cursor-pointer'>  <Link to="/admin/notices"><u>Add Notice: </u> </Link> </span>

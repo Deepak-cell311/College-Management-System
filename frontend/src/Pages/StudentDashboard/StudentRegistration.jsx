@@ -18,7 +18,7 @@ const StudentRegistration = () => {
         name: data.name,
         rollNum: data.rollNum,
         password: data.password,
-        sclassName: data.sclassName,
+        course: data.course,
       });
       console.log(response.data)
 
@@ -77,15 +77,15 @@ const StudentRegistration = () => {
                 placeholder='Enter Your Roll Number'
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
 
-              <label htmlFor="sclassName" className='text-black text-xl flex'>Course <span><Asterisk color="#ff0000" className='size-4' /></span></label>
+              <label htmlFor="course" className='text-black text-xl flex'>Course <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input
-                {...register('sclassName', {
+                {...register('course', {
                   required: "course is required",
                   minLength: { value: 2, message: "Course must be minimum 2 characters long" }
                 })}
                 type="text"
-                name='sclassName'
-                id='sclassName'
+                name='course'
+                id='course'
                 placeholder='Course'
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
 
