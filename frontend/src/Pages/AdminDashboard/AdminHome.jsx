@@ -6,12 +6,17 @@ import student from "../../assets/student.png"
 import teacher from "../../assets/teachers.png"
 import courses from "../../assets/courses.png"
 import axios from 'axios';
+import { ColorRing } from 'react-loader-spinner'
 
 const AdminHome = () => {
     const [studentCount, setStudentCount] = useState(0);
     const [courseCount, setCourseCount] = useState(0);
     const [teacherCount, setTeacherCount] = useState(0);
     const [noticeList, setNoticeList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    console.log(typeof noticeList)
 
     // Count the total number of students
     const tStudentCount = async () => {
@@ -35,17 +40,20 @@ const AdminHome = () => {
 
     // Fetch Notice List
     const fetchNoticeList = async () => {
+        setLoading(true)
         try {
             const response = await axios.get(`http://localhost:5000/Notice/NoticeList`)
             console.log("response data notice: ", response)
-            setNoticeList(response.data)
+            setNoticeList(Array.isArray(response.data) ? response.data : []);
         } catch (error) {
             console.log("error: ", error)
+        } finally {
+            setLoading(false)
         }
     }
 
     useEffect(() => {
-       
+
 
         // Fetching course count
         const coursesData = localStorage.getItem("courseTodo");
@@ -89,13 +97,29 @@ const AdminHome = () => {
                     <Notice /> Add Notice:
                 </Link>
             </span>
-            {noticeList.map((todoData, index) => (
-                <div className='mt-20 mx-5 px-5 py-10 border-2 border-gray-600 shadow-lg shadow-black rounded-3xl bg-gray-800' key={index}>
-                    <span className='font-semibold text-lg'>Notice : {todoData.title || "N/A"}</span>
-                    <p className='text-sm italic text-green-600'>Date: {todoData.date || "N/A"}</p>
-                    <p className='text-xl mt-5 italic'>{todoData.details || "N/A"}</p>
-                </div>
-            ))}
+            {loading ? (
+                <tr>
+                    <td colSpan="5" className="text-center">
+                        <div className="flex justify-center items-center h-96">
+                            <ColorRing visible={true} height="80" width="80" ariaLabel="loading" colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']} />
+                        </div>
+                    </td>
+                </tr>
+            ) :
+                error ? (
+                    <tr>
+                        <td colSpan="5" className="text-center text-red-500">{error}</td>
+                    </tr>
+                ) :
+                    (
+                        noticeList.map((todoData, index) => (
+                            <div className='mt-20 mx-5 px-5 py-10 border-2 border-gray-600 shadow-lg shadow-black rounded-3xl bg-gray-800' key={index}>
+                                <span className='font-semibold text-lg'>Notice : {todoData.title || "N/A"}</span>
+                                <p className='text-sm italic text-green-600'>Date: {todoData.date || "N/A"}</p>
+                                <p className='text-xl mt-5 italic'>{todoData.details || "N/A"}</p>
+                            </div>
+                        ))
+                    )}
         </div>
     );
 };
