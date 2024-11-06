@@ -61,7 +61,7 @@ const Notice = () => {
                     }
                 }));
                 setNoticeTodo(formattedNotices);
-                localStorage.setItem('noticeTodo', JSON.stringify(formattedNotices));
+                
             } else {
                 toast.info(response.data.message);
             }
@@ -84,10 +84,7 @@ const Notice = () => {
     };
 
     useEffect(() => {
-        const savedTodos = localStorage.getItem("noticeTodo");
-        if (savedTodos) {
-            setNoticeTodo(JSON.parse(savedTodos));
-        }
+      
         fetchNoticeData();
     }, []);
 
