@@ -17,7 +17,7 @@ const AdminForm = () => {
 
   const handleOnSubmitAdmin = async (data) => {
     try {
-      const response = await axios.post("http://192.168.149.125:5000/Admin/AdminLogin", {
+      const response = await axios.post("http://localhost:5000/Admin/AdminLogin", {
         email: data.email,
         password: data.password
       })

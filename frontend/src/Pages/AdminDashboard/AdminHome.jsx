@@ -8,10 +8,10 @@ import courses from "../../assets/courses.png"
 import axios from 'axios';
 
 const AdminHome = () => {
-    const [showNoticeTodo, setShowNoticeTodo] = useState([]);
     const [studentCount, setStudentCount] = useState(0);
     const [courseCount, setCourseCount] = useState(0);
     const [teacherCount, setTeacherCount] = useState(0);
+    const [noticeList, setNoticeList] = useState([]);
 
     // Count the total number of students
     const tStudentCount = async () => {
@@ -33,25 +33,19 @@ const AdminHome = () => {
         }
     }
 
+    // Fetch Notice List
+    const fetchNoticeList = async () => {
+        try {
+            const response = await axios.get(`http://localhost:5000/Notice/NoticeList`)
+            console.log("response data notice: ", response)
+            setNoticeList(response.data)
+        } catch (error) {
+            console.log("error: ", error)
+        }
+    }
 
     useEffect(() => {
-        const getNoticeTodoData = localStorage.getItem("noticeTodo");
-        if (getNoticeTodoData) {
-            const parsedData = JSON.parse(getNoticeTodoData);
-            if (Array.isArray(parsedData)) {
-                setShowNoticeTodo(parsedData.map((noticeTodoData) => ({
-                    title: noticeTodoData.text.noticeTitle,
-                    detail: noticeTodoData.text.noticeDetail,
-                    date: noticeTodoData.text.noticeDate,
-                })));
-            } else if (parsedData && parsedData.text) {
-                setShowNoticeTodo([{
-                    title: parsedData.text.noticeTitle,
-                    detail: parsedData.text.noticeDetail,
-                    date: parsedData.text.noticeDate,
-                }]);
-            }
-        }
+       
 
         // Fetching course count
         const coursesData = localStorage.getItem("courseTodo");
@@ -62,6 +56,7 @@ const AdminHome = () => {
 
         tStudentCount();
         tTeacherCount();
+        fetchNoticeList();
 
     }, []);
 
@@ -94,11 +89,11 @@ const AdminHome = () => {
                     <Notice /> Add Notice:
                 </Link>
             </span>
-            {showNoticeTodo.map((todoData, index) => (
+            {noticeList.map((todoData, index) => (
                 <div className='mt-20 mx-5 px-5 py-10 border-2 border-gray-600 shadow-lg shadow-black rounded-3xl bg-gray-800' key={index}>
                     <span className='font-semibold text-lg'>Notice : {todoData.title || "N/A"}</span>
                     <p className='text-sm italic text-green-600'>Date: {todoData.date || "N/A"}</p>
-                    <p className='text-xl mt-5 italic'>{todoData.detail || "N/A"}</p>
+                    <p className='text-xl mt-5 italic'>{todoData.details || "N/A"}</p>
                 </div>
             ))}
         </div>

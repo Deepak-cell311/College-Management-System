@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import student from "../../assets/student.png"
-import teacher from "../../assets/teachers.png"
 import courses from "../../assets/courses.png"
 import fee from "../../assets/fee.png"
-import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 
@@ -13,6 +11,7 @@ const StudentHome = () => {
     const [studentCount, setStudentCount] = useState(0);
     const [subjectCount, setSubjectCount] = useState(0);
     const [teacherCount, setTeacherCount] = useState(0);
+    const [noticeList, setNoticeList] = useState([]);
 
     // Count number of Subject
     const fetchSubjectCount = async () => {
@@ -61,30 +60,17 @@ const StudentHome = () => {
         }
     };
 
-    // Count number of Teacher
-    const fetchTeacherCount = async () => {
+    // Fetch Notice List
+    const fetchNoticeList = async () => {
         try {
-            const studentData = localStorage.getItem("Student");
-            if (!studentData) {
-                toast.error("No student data found. Please log in.");
-                return;
-            }
-
-            const student = JSON.parse(studentData);
-            const sclassName = student.sclassName?._id;
-
-            console.log("student: ", sclassName)
-
-            const response = await axios.get(`http://localhost:5000/Student/ClassStudents/${sclassName}`);
-            console.log("student response: ", response.data)
-            if (Array.isArray(response.data)) {
-                setStudentCount(response.data.length);
-            }
+            const response = await axios.get(`http://localhost:5000/Notice/NoticeList`)
+            console.log("response data notice: ", response)
+            setNoticeList(response.data)
         } catch (error) {
-            toast.error(error.response?.data?.message || "An error occurred while fetching subjects.");
+            console.log("error: ", error)
         }
-    };
-
+    }
+    
     useEffect(() => {
         const getNoticeTodoData = localStorage.getItem("noticeTodo")
         if (getNoticeTodoData) {
@@ -112,6 +98,7 @@ const StudentHome = () => {
         }
         fetchStudentCount()
         fetchSubjectCount()
+        fetchNoticeList();
     }, [])
 
     return (
@@ -129,22 +116,17 @@ const StudentHome = () => {
                         <span>Total Subject</span>
                         <span className='text-2xl font-bold text-green-600'>{subjectCount}</span>
                     </div>
-                    {/* <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
-                        <img className='mx-auto my-4 w-20 h-20' src={teacher} alt="fee collection" />
-                        <span>Total Teacher</span>
-                        <span className='text-2xl font-bold text-green-600'>{teacherCount}</span>
-                    </div> */}
                     <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
                         <img className='mx-auto my-4 w-20 h-20' src={fee} alt="fee collection" />
                         <span>Total Fees</span>
                         <span className='text-2xl font-bold text-green-600'>24, 000</span>
                     </div>
                 </div>
-                <span className=' mt-20 -mb-14 mx-5 cursor-pointer'>  <Link to="/admin/notices"><u>Add Notice: </u> </Link> </span>
-                {showNoticeTodo.map((todoData, index) => (<div className='mt-20 mx-5 px-5 py-10 border-2 border-black-900 shadow-2xl shadow-black-900' key={index}>
+                <span className='flex items-center text-blue-400 hover:text-blue-300 mt-10'><u>All Notices </u></span>
+                {noticeList.map((todoData, index) => (<div className='mt-4 px-5 py-5 border-2 border-black-900 shadow-2xl shadow-black-900' key={index}>
                     <span className=''>Notice: {todoData.title || "N/A"}</span>
                     <p className=' text-sm italic'>Date: {todoData.date || "N/A"}</p>
-                    <p className=' text-xl mt-5 italic'>{todoData.detail || "N/A"}</p>
+                    <p className=' text-xl mt-5 italic'>{todoData.details || "N/A"}</p>
                 </div>))}
             </div>
         </>

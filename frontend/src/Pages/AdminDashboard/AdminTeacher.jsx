@@ -3,19 +3,24 @@ import { Trash2 } from 'lucide-react'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { ColorRing } from 'react-loader-spinner'
+
 
 const AdminTeacher = () => {
 
   const [teacherData, setTeacherData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   // Navigate to the detail of the teacher
   const handleTeacherRoute = (teacherId) => {
-    navigate('/admin/teacherAttendanceDetail', {state: {teacherId}})
+    navigate('/admin/teacherAttendanceDetail', { state: { teacherId } })
   }
 
   // Fetch data from the database
   const fetchTeacherData = async () => {
+    setLoading(true)
     try {
       const response = await axios.get('http://192.168.149.125:5000/Teacher/Teachers');
       console.log("Response data fetch teacher: ", response.data);
@@ -33,6 +38,8 @@ const AdminTeacher = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "An error occurred while fetching subjects");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -56,20 +63,34 @@ const AdminTeacher = () => {
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-              {
-                teacherData.map((teacher, index) => (
-                  <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={teacher._id}>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"} </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{teacher.name || "N/A"} </td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{teacher.email || "N/A"}</td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{teacher.teachSclass || "N/A"}</td>
-                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 flex'>
-                      <button onClick={() => handleTeacherRoute(teacher._id)} className='bg-green-600 hover:bg-green-500 text-white py-2 px-4 mx-3 rounded-lg'>View</button>
-                      <Trash2 color="#ff0000" className="h-9 w-9 text-red -my-1 mx-4 cursor-pointer" />
-                    </td>
+              {loading ? (
+                <tr>
+                  <td colSpan="5" className="text-center">
+                    <div className="flex justify-center items-center h-96">
+                      <ColorRing visible={true} height="80" width="80" ariaLabel="loading" colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']} />
+                    </div>
+                  </td>
+                </tr>
+              ) :
+                error ? (
+                  <tr>
+                    <td colSpan="5" className="text-center text-red-500">{error}</td>
                   </tr>
-                ))
-              }
+                ) :
+                  (
+                    teacherData.map((teacher, index) => (
+                      <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={teacher._id}>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"} </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{teacher.name || "N/A"} </td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{teacher.email || "N/A"}</td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{teacher.teachSclass || "N/A"}</td>
+                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 flex'>
+                          <button onClick={() => handleTeacherRoute(teacher._id)} className='bg-green-600 hover:bg-green-500 text-white py-2 px-4 mx-3 rounded-lg'>View</button>
+                          <Trash2 color="#ff0000" className="h-9 w-9 text-red -my-1 mx-4 cursor-pointer" />
+                        </td>
+                      </tr>
+                    ))
+                  )}
             </tbody>
           </table>
         </div >

@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { Trash2 } from 'lucide-react';
+import { ColorRing } from 'react-loader-spinner'
 
 const AdminStudents = () => {
     const [studentTodo, setStudentTodo] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
     const navigate = useNavigate();
 
     const handleView = (student) => {
@@ -18,6 +22,7 @@ const AdminStudents = () => {
     };
 
     const fetchAllStudent = async () => {
+        setLoading(true)
         try {
             const response = await axios.get(`http://192.168.149.125:5000/Student/Students`);
             if (Array.isArray(response.data)) {
@@ -34,6 +39,8 @@ const AdminStudents = () => {
         } catch (error) {
             console.log(error);
             toast.error("An error occurred while fetching students.");
+        } finally {
+            setLoading(false)
         }
     };
 
@@ -66,7 +73,22 @@ const AdminStudents = () => {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800">
-                        {studentTodo.map((student, index) => (
+                    {loading ? (
+                <tr>
+                  <td colSpan="5" className="text-center">
+                    <div className="flex justify-center items-center h-96">
+                      <ColorRing visible={true} height="80" width="80" ariaLabel="loading" colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']} />
+                    </div>
+                  </td>
+                </tr>
+              ) :
+                error ? (
+                  <tr>
+                    <td colSpan="5" className="text-center text-red-500">{error}</td>
+                  </tr>
+                ) :
+                  (
+                        studentTodo.map((student, index) => (
                             <tr className="hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200" key={student._id}>
                                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">{index + 1 || "N/A"}</td>
                                 <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-200">{student.name}</td>
@@ -88,7 +110,8 @@ const AdminStudents = () => {
                                     </div>
                                 </td>
                             </tr>
-                        ))}
+                        ))
+                    )}
                     </tbody>
                 </table>
             </div>

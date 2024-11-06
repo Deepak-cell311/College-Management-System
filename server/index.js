@@ -19,6 +19,7 @@ dotenv.config();
 app.use(bodyParser.json({extended: true }))
 app.use(bodyParser.urlencoded({extended: true }))
 app.use(express.json())
+
 app.use(cors())
 
 mongoose

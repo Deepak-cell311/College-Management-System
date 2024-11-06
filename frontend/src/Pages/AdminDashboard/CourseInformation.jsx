@@ -8,11 +8,15 @@ import { Trash2 } from 'lucide-react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useForm } from 'react-hook-form';
+import { ColorRing } from 'react-loader-spinner'
+
 
 const CourseInformation = () => {
 
   const [activeTab, setActiveTab] = useState("details")
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
 
   const [subjectTodos, setSubjectTodos] = useState([])
@@ -105,7 +109,7 @@ const CourseInformation = () => {
       }
     } catch (error) {
       if (error.response) {
-        toast.error(`Error: ${error.response.data.message || "Failed to delete subject"}`);
+        toast.error(`Error: ${error.response.data.message}`);
       } else {
         toast.error("An unexpected error occurred");
       }
@@ -116,6 +120,7 @@ const CourseInformation = () => {
   /* ==========================================Student================================================================== */
 
   const fetchStudentData = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`http://192.168.149.125:5000/Student/ClassStudents/${courseId}`);
       if (Array.isArray(response.data)) {
@@ -134,25 +139,38 @@ const CourseInformation = () => {
       }
     } catch (error) {
       toast.error(error.response?.data?.message);
-      console.log(error.response)
+    } finally {
+      setLoading(false);
     }
   };
+
+  const deleteStudent = async (id) => {
+    try {
+        await axios.delete(`http://localhost:5000/Student/Student/${id}`);
+        setStudentTodos((prev) => prev.filter((student) => student._id !== id));
+        toast.success("Student deleted successfully");
+    } catch (error) {
+        console.error(error);
+        toast.error("An error occurred while deleting the student.");
+    }
+};
   const filterStudent = studentTodos.filter((student) => student.courseId === courseId);
 
+
   /* =============================================Teacher=============================================================== */
-  
+
   const handleTeacherAttendance = (teacherId) => {
-    navigate("/admin/teacherAttendance", {state: {teacherId}})
+    navigate("/admin/teacherAttendance", { state: { teacherId } })
   }
 
   const handleTeacherRoute = (teacherId) => {
-    navigate('/admin/teacherAttendanceDetail', {state: {teacherId}})
+    navigate('/admin/teacherAttendanceDetail', { state: { teacherId } })
   }
 
   const fetchTeacherData = async () => {
+    setLoading(true);
     try {
       const response = await axios.get('http://192.168.149.125:5000/Teacher/Teachers');
-      console.log("Response data fetch teacher: ", response.data);
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((teacher) => ({
           _id: teacher._id,
@@ -161,13 +179,14 @@ const CourseInformation = () => {
           teachSclass: teacher.teachSclass.sclassName,
           id: teacher.teachSclass._id
         }));
-        console.log("formattedSubjects: ", formattedSubjects)
         setTeacherData(formattedSubjects);
       } else {
         toast.info(response.data.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred while fetching subjects");
+      toast.error(error.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -176,7 +195,6 @@ const CourseInformation = () => {
   const deleteTeacher = async (id) => {
     try {
       const response = await axios.delete(`http://192.168.149.125:5000/Teacher/Teacher/${id}`);
-      console.log("Response: ", response)
       if (response.status === 200) {
         setTeacher((teachers) => teachers.filter((teacher) => teacher._id !== id));
         toast.success('Subject deleted successfully');
@@ -188,7 +206,6 @@ const CourseInformation = () => {
     }
   };
 
-  console.log("teacher data: ", teacherData)
 
 
   /* =================================================================================================================== */
@@ -296,21 +313,35 @@ const CourseInformation = () => {
                   </tr>
                 </thead>
                 <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                  {
-
-                    filterSubject.map((subjectTodo, index) => (
-                      <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={subjectTodo._id}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{subjectTodo.text.subName}</td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{subjectTodo.text.subCode}</td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{subjectTodo.text.sessions}</td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 flex'>
-                          <button className='bg-green-600 hover:bg-green-500 text-white py-2 px-4 mx-3 rounded-lg' onClick={() => handleSubjectRoute(subjectTodo)}> View </button>
-                          <Trash2 color="#ff0000" className="h-9 w-9 text-red -my-1 mx-4 cursor-pointer" onClick={() => deleteSubjectTodo(subjectTodo._id)} />
-                        </td>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="text-center">
+                        <div className="flex justify-center items-center h-96">
+                          <ColorRing visible={true} height="80" width="80" ariaLabel="loading" colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']} />
+                        </div>
+                      </td>
+                    </tr>
+                  ) :
+                    error ? (
+                      <tr>
+                        <td colSpan="5" className="text-center text-red-500">{error}</td>
                       </tr>
-                    ))
-                  }
+                    ) :
+                      (
+
+                        filterSubject.map((subjectTodo, index) => (
+                          <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={subjectTodo._id}>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{subjectTodo.text.subName}</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{subjectTodo.text.subCode}</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200'>{subjectTodo.text.sessions}</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 flex'>
+                              <button className='bg-green-600 hover:bg-green-500 text-white py-2 px-4 mx-3 rounded-lg' onClick={() => handleSubjectRoute(subjectTodo)}> View </button>
+                              <Trash2 color="#ff0000" className="h-9 w-9 text-red -my-1 mx-4 cursor-pointer" onClick={() => deleteSubjectTodo(subjectTodo._id)} />
+                            </td>
+                          </tr>
+                        ))
+                      )}
                 </tbody>
               </table>
             </div>}
@@ -334,22 +365,37 @@ const CourseInformation = () => {
                   </tr>
                 </thead>
                 <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                  {
-                    filterStudent.map((studentTodo, index) => (<>
-                      <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors `} key={studentTodo.id}>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-bold'>{index + 1 || 'N/A'}</td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-bold'>{studentTodo.text?.name || 'N/A'}</td>
-                        <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-bold'>{studentTodo.text?.rollNum || 'N/A'}</td>
-                        <td className='flex'>
-                          <button className='bg-green-600 hover:bg-green-500 mt-2 text-white py-2 px-4 mx-2 rounded-lg' onClick={() => { handleStudentRoute(studentTodo) }}> View </button>
-                          <button ><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-9 text-red-700">
-                            <path d="M10.375 2.25a4.125 4.125 0 1 0 0 8.25 4.125 4.125 0 0 0 0-8.25ZM10.375 12a7.125 7.125 0 0 0-7.124 7.247.75.75 0 0 0 .363.63 13.067 13.067 0 0 0 6.761 1.873c2.472 0 4.786-.684 6.76-1.873a.75.75 0 0 0 .364-.63l.001-.12v-.002A7.125 7.125 0 0 0 10.375 12ZM16 9.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" />
-                          </svg>
-                          </button>
-                        </td>
+                  {loading ? (
+                    <tr>
+                      <td colSpan="5" className="text-center">
+                        <div className="flex justify-center items-center h-96">
+                          <ColorRing visible={true} height="80" width="80" ariaLabel="loading" colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']} />
+                        </div>
+                      </td>
+                    </tr>
+                  ) :
+                    error ? (
+                      <tr>
+                        <td colSpan="5" className="text-center text-red-500">{error}</td>
                       </tr>
-                    </>))
-                  }
+                    ) :
+                      (
+                        filterStudent.map((studentTodo, index) => (<>
+                          <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors `} key={studentTodo._id}>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-bold'>{index + 1 || 'N/A'}</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-bold'>{studentTodo.text?.name || 'N/A'}</td>
+                            <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-200 font-bold'>{studentTodo.text?.rollNum || 'N/A'}</td>
+                            <td className='flex'>
+                              <button className='bg-green-600 hover:bg-green-500 mt-2 text-white py-2 px-4 mx-2 rounded-lg' onClick={() => { handleStudentRoute(studentTodo) }}> View </button>
+                              <button onClick={() => deleteStudent(studentTodo._id)}><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-9 text-red-700">
+                                <path d="M10.375 2.25a4.125 4.125 0 1 0 0 8.25 4.125 4.125 0 0 0 0-8.25ZM10.375 12a7.125 7.125 0 0 0-7.124 7.247.75.75 0 0 0 .363.63 13.067 13.067 0 0 0 6.761 1.873c2.472 0 4.786-.684 6.76-1.873a.75.75 0 0 0 .364-.63l.001-.12v-.002A7.125 7.125 0 0 0 10.375 12ZM16 9.75a.75.75 0 0 0 0 1.5h6a.75.75 0 0 0 0-1.5h-6Z" />
+                              </svg>
+                              </button>
+                            </td>
+                          </tr>
+                        </>
+                        ))
+                      )}
                 </tbody>
               </table>
             </div>
