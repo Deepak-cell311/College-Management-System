@@ -16,6 +16,7 @@ const AdminStudent = () => {
   const [marksData, setMarksData] = useState([])
   const [subjectTodo, setSubjectTodo] = useState([])
 
+
   const handleTabChange = (tab) => setActiveTab(tab)
 
   const location = useLocation()
@@ -126,7 +127,6 @@ const AdminStudent = () => {
   const fetchSubjectData = async () => {
     try {
       const response = await axios.get('http://192.168.149.125:5000/Subject/AllSubjects');
-      console.log(response.data)
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           id: subject._id,
@@ -149,7 +149,6 @@ const AdminStudent = () => {
   const deleteAttendance = async (id) => {
     try {
       const response = await axios.delete(`http://localhost:5000/Subject/Subject/${id}`);
-      console.log("Response: ", response)
       if (response.status === 200) {
         setSubjectTodo((subjects) => subjects.filter((subject) => subject._id !== id));
         toast.success('Subject deleted successfully');
