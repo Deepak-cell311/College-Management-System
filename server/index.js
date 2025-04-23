@@ -34,7 +34,7 @@ cloudinary.config({
 
 // app.use(cors())
 app.use(cors({
-    origin: ["http://localhost:3000", "https://college-management-system-nine.vercel.app/"],
+    origin: ["http://localhost:3000", "https://college-management-system-nine.vercel.app"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
 }))
