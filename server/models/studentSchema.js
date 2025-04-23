@@ -48,6 +48,10 @@ const studentSchema = new mongoose.Schema({
             ref: 'subject',
             required: true
         }
+    }],
+    images: [{
+        public_id: { type: String, required: true },
+        url: { type: String, url: true }
     }]
 });
 

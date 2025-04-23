@@ -36,6 +36,10 @@ const teacherSchema = new mongoose.Schema({
             enum: ['Present', 'Absent'],
             required: true
         }
+    }],
+    images: [{
+        public_id: { type: String, required: true },
+        url: { type: String, url: true }
     }]
 }, { timestamps: true });
 

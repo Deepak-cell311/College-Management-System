@@ -2,18 +2,21 @@ const bcrypt = require('bcrypt');
 const Teacher = require('../models/teacherSchema.js');
 const Subject = require('../models/subjectSchema.js');
 const Sclass = require("../models/sclassSchema.js")
+const cloudinary = require("cloudinary").v2
 
 const teacherRegister = async (req, res) => {
     const { name, email, password, role, teacherSubject, teacherSclass } = req.body;
+
     try {
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt);
-        const subject = await Subject.findOne({subName : teacherSubject});
-        const sclass = await Sclass.findOne({sclassName : teacherSclass});
-        const teachsubject = subject._id;
+        const subject = await Subject.findOne({ subName: teacherSubject });
+        const sclass = await Sclass.findOne({ sclassName: teacherSclass });
+        const teachsubject = subject?._id;
         const teachsclass = sclass._id;
-        const teacher = new Teacher({ name, email, password: hashedPass, role, teachSubject : teachsubject, teachSclass : teachsclass });
+        const teacher = new Teacher({ name, email, password: hashedPass, role, teachSubject: teachsubject, teachSclass: teachsclass });
         const existingTeacherByEmail = await Teacher.findOne({ email });
+
         if (existingTeacherByEmail) {
             res.send({ message: 'Email already exists' });
         }
@@ -23,7 +26,7 @@ const teacherRegister = async (req, res) => {
             result.password = undefined;
             res.send(result);
         }
-    }  catch (error) {
+    } catch (error) {
         console.error("Error in studentAttendance:", error);
         res.status(500).json({ message: 'Internal Server Error', error: error.message });
     }
@@ -174,4 +177,50 @@ const teacherAttendance = async (req, res) => {
     }
 };
 
-module.exports = { teacherRegister, teacherLogIn, getTeachers, getTeacherDetail, updateTeacherSubject, deleteTeacher, deleteTeachers, deleteTeachersByClass, teacherAttendance };
+
+const uploadTeacherProfile = async (req, res) => {
+    try {
+        // console.log("Response data : ", localStorage.getItem('Student'))
+
+        //  Extracting the id of an student --------> use local storage
+        const { teacherId } = req.body;
+        console.log("Teacher Id: ", teacherId)
+        if (!teacherId) {
+            return res.status(400).json({ message: "Teacher ID is required" })
+        }
+
+        // Check file uploaded or not
+        if (!req.files || !req.files.image) {
+            return res.status(400).json({ message: 'File is not uploaded yet' })
+        }
+
+        const file = req.files.image;
+
+        // Uploading image in cloudinary
+        const result = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "teacherProfile"         // Make this on cloudinary
+        })
+
+        // Save image details to MongoDB
+        const updatingTeacher = await Teacher.findByIdAndUpdate(
+            teacherId,
+            { $push: { images: { public_id: result.public_id, url: result.secure_url } } },
+            { new: true }
+        )
+
+        console.log("Updating teacher: ", updatingTeacher)
+        if (!updatingTeacher) { return res.status(400).json({ message: "Teacher not found" }) }
+
+        res.status(200).json({
+            message: "Image upload successfully",
+            imageUrl: result.secure_url,
+            teacher: updatingTeacher
+        })
+
+    } catch (error) {
+        console.error("Image upload failed", error)
+        res.status(500).json({ message: "Image upload failed", error: error.message })
+    }
+}
+
+module.exports = { teacherRegister, uploadTeacherProfile, teacherLogIn, getTeachers, getTeacherDetail, updateTeacherSubject, deleteTeacher, deleteTeachers, deleteTeachersByClass, teacherAttendance };

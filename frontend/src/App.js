@@ -1,5 +1,5 @@
 import 'react-toastify/dist/ReactToastify.css';
-import React from 'react'
+import React, { useEffect } from 'react'
 import Login from './Pages/Login'
 import AuthProvider, { useAuth } from './Context/authProvider.js';
 import { ToastContainer } from 'react-toastify';
@@ -37,6 +37,9 @@ import TeacherAttendance from './Pages/TeacherDashboard/TeacherAttendance.jsx';
 import TeacherSchedule from './Pages/TeacherDashboard/TeacherSchedule.jsx';
 import TaketeacherAttendance from './Pages/AdminDashboard/TaketeacherAttendance.jsx';
 import TeacherAttendanceDetail from './Pages/AdminDashboard/teacherAttendanceDetail.jsx';
+import PaymentPage from './Pages/Payment/PaymentPage.jsx';
+import StudentFees from './Pages/StudentDashboard/StudentFees.jsx';
+import StudentFeesPayment from './Pages/StudentDashboard/StudentFeesPayment.jsx';
 
 const App = () => {
   return (
@@ -55,6 +58,8 @@ const App = () => {
           <Route path='/teacher/*' element={<TeacherRoutes />} />
           <Route path='/teacherLogin' element={<TeacherLogin />} />
           <Route path='/teacherRegister' element={<TeacherRegister />} />
+          <Route path='/payment' element={<PaymentPage />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
         <ToastContainer />
@@ -68,10 +73,20 @@ const AdminRoutes = () => {
   const {authUser} = useAuth()
   const navigate = useNavigate()
 
-  if (!authUser) {
-    navigate('/adminLogin');
-    return null;
-  }
+  useEffect(() => {
+    if (!authUser) {
+      navigate('/admin');
+      // return null;                                 // it causes an error which shows the ----->  useEffect must not return anything besides a function, which is used for clean-up. You returned null. If your effect does not require clean up, return undefined (or nothing).Uncaught TypeError: destroy is not a function
+      // return undefined
+      return undefined;           // optional
+    }
+  },[])
+
+  // if (!authUser) {
+  //   navigate('/adminLogin');
+  //   return null;
+  // }
+
   return (
     <Routes>
       <Route path="/" element={<AdminDashBoard />} >
@@ -90,6 +105,7 @@ const AdminRoutes = () => {
         <Route path='adminStudent' element={<AdminStudents />} />
         <Route path='teachers' element={<AdminTeacher />} />
         <Route path='profile' element={<AdminProfile />} />
+
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>
@@ -105,6 +121,8 @@ const StudentRoutes = () => {
           <Route index element={<StudentHome />} />
           <Route path='home' element={<StudentHome />} />
           <Route path='subjects' element={<StudentSubject />} />
+          <Route path='fees' element={<StudentFees />} />
+          <Route path='feesPayment' element={<StudentFeesPayment />} />
           <Route path='profile' element={<StudentProfile />} />
           <Route path='attendance' element={<StudentAttendance />} />
           <Route path="*" element={<NotFound />} />
@@ -123,7 +141,7 @@ const TeacherRoutes = () => {
 
   if (!authTeacher) {
     navigate('/teacherLogin');
-    return null;
+    return undefined;
   }
   return (
     <>

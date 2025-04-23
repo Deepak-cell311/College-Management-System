@@ -42,7 +42,7 @@ const StudentSubject = () => {
     fetchSubjectData()
   })
 
-  console.log(subjectTodo)
+
   return (
     <>
       <div className='w-full'>

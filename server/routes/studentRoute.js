@@ -1,8 +1,9 @@
 const router = require('express').Router();
-const { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, classStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance } = require('../controllers/student-controller.js');
+const { studentRegister, studentLogIn, uploadStudentProfile, getStudents, getStudentDetail, deleteStudents, classStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance } = require('../controllers/student-controller.js');
 
 router.post('/StudentReg', studentRegister);                                                        //done
 router.post('/StudentLogin', studentLogIn);                                                         //done
+router.post('/StudentProfile', uploadStudentProfile)                                                //done
 router.get("/Students/", getStudents);                                                              //done
 router.get("/Student/:id", getStudentDetail);                                                       //done
 router.get("/ClassStudents/:id", classStudents);                                                    //done

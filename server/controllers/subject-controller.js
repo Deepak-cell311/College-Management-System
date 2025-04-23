@@ -4,7 +4,7 @@ const Student = require('../models/studentSchema.js');
 
 const subjectCreate = async (req, res) => {
     try {
-        const {subName,subCode,sessions} =req.body;
+        const {subName, subCode, sessions} =req.body;
         const existingSubjectBySubCode = await Subject.findOne({subCode});
         if (existingSubjectBySubCode) {
             res.send({ message: 'Sorry this subcode must be unique as it already exists' });

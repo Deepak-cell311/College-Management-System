@@ -13,7 +13,7 @@ const AdminSubject = () => {
   const fetchSubjectData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://192.168.149.125:5000/Subject/AllSubjects');
+      const response = await axios.get('http://localhost:5000/Subject/AllSubjects');
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           id: subject._id,

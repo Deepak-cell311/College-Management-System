@@ -19,3 +19,9 @@
     padding: 2rem 2rem;
     text-align: center;
 }
+.flex-grow{
+    scrollbar-width: none;
+}
+.fees-note>li{
+    border-radius: 10px;
+}

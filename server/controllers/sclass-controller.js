@@ -6,11 +6,13 @@ const Teacher = require('../models/teacherSchema.js');
 const sclassCreate = async (req, res) => {
     try {
         const sclass = new Sclass({
-            sclassName: req.body.sclassName
+            sclassName: req.body.sclassName,
+            sclassCode: req.body.sclassCode
         });
 
         const existingSclassByName = await Sclass.findOne({
-            sclassName: req.body.sclassName
+            sclassName: req.body.sclassName,
+            sclassCode: req.body.sclassCode
         });
 
         if (existingSclassByName) {

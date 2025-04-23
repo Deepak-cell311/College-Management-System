@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../Context/authProvider'
+import fees from '../../assets/invoice.png'
 
 const AdminDashBoard = () => {
-    const [menu, setMenu] = useState(true)
+    const [menu, setMenu] = useState(false)
     const navigate = useNavigate()
     const { authUser, setAuthUser, logOut } = useAuth()
+    const { open, setOpen } = useState(true)
     const location = useLocation()
 
     const handleMenuBar = () => {
         setMenu(!menu)
+        // setOpen(!open)
     }
 
     const handleLogout = async () => {
@@ -28,25 +31,33 @@ const AdminDashBoard = () => {
     return (
         <>
             {/* Sidebar and main layout */}
-            <div className="flex h-screen bg-gray-900 text-white">
+            <div className="flex h-screen bg-gray-900 text-white w-screen">
                 {/* Sidebar toggle button for small screens */}
-                <button
+                {menu ? <button
+                    onClick={() => handleMenuBar()}
+                    className="md:hidden absolute mt-3 -mx-2 p-4 z-20 text-white hover:text-gray-400 focus:outline-none"
+                >
+                    {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M 7 4 C 6h16M4 12h16M4 18h16" />
+                    </svg> */}
+                    <span className='mx-3 text-gray-300'>X</span>
+                </button> : <button
                     onClick={handleMenuBar}
-                    className="md:hidden p-4 z-20 text-white hover:text-gray-400 focus:outline-none"
+                    className="md:hidden absolute mt-3 -mx-2 p-4 z-20 text-white hover:text-gray-400 focus:outline-none"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
-                </button>
+                </button>}
 
                 {/* Sidebar */}
-                <div className={`bg-gray-800 shadow-lg transition-transform duration-300 transform ${menu ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-64 h-full flex-shrink-0`}>
+                <div className={`bg-gray-800 shadow-lg md:relative bg-blend-saturation absolute z-10  transition-transform duration-300 transform ${menu ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-full md:w-64 h-full flex-shrink-0`}>
                     <div className="flex flex-col h-full">
                         <div className="p-6 text-center text-xl font-semibold text-gray-100 border-b border-gray-700">
                             Admin Dashboard
                         </div>
-                        <div className="flex-grow overflow-y-auto mt-8">
-                            <ul>
+                        <div className="flex-grow scroll-smooth overflow-y-auto mt-8">
+                            <ul  onClick={() => setMenu(false)}>
                                 <li className="mb-4">
                                     <Link to="/admin/home" className={`flex items-center px-6 py-3 hover:bg-gray-700 ${linkStyle('/admin/home')}`}>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -56,7 +67,7 @@ const AdminDashBoard = () => {
                                     </Link>
                                 </li>
                                 <li className="mb-4">
-                                <Link to="/admin/courses" className={`flex items-center px-6 py-3 hover:bg-gray-700 ${linkStyle('/admin/courses')}`}>
+                                    <Link to="/admin/courses" className={`flex items-center px-6 py-3 hover:bg-gray-700 ${linkStyle('/admin/courses')}`}>
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-4">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" />
                                         </svg>
@@ -85,7 +96,8 @@ const AdminDashBoard = () => {
                                         </svg>
                                         Students
                                     </Link>
-                                </li>
+                                </li> 
+                               
                                 <li className="mb-4">
                                     <Link to="/admin/notices" className={`flex items-center px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white ${linkStyle('/admin/notices')}`}>
                                         <svg className="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>

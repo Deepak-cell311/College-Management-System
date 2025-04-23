@@ -8,7 +8,9 @@ const Welcome = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { Engine, Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Events } = window.Matter;
+    const { 
+      Engine, 
+      Render, Runner, Bodies, Composite, Mouse, MouseConstraint, Events } = window.Matter;
 
     const engine = Engine.create();
     const render = Render.create({
@@ -76,7 +78,7 @@ const Welcome = () => {
 
     return () => {
       Render.stop(render);
-      Engine.clear(engine);
+      // Engine.clear(engine);
       render.canvas.remove();
       render.textures = {};
       clearInterval(forceInterval);

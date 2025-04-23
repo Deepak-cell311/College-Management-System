@@ -23,7 +23,7 @@ const TeacherLogin = () => {
       if (response.data && response.data._id) {
         const user = {
           name: response.data.name,
-          rollNum: response.data.rollNum,
+          email: response.data.email,
           sclassName: response.data.sclassName,
           role: response.data.role,
           _id: response.data._id,

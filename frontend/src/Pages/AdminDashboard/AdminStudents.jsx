@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-import { Trash2 } from 'lucide-react';
+import { Search, Trash2 } from 'lucide-react';
 import { ColorRing } from 'react-loader-spinner'
 
 const AdminStudents = () => {
@@ -28,7 +28,8 @@ const AdminStudents = () => {
     const fetchAllStudent = async () => {
         setLoading(true)
         try {
-            const response = await axios.get(`http://192.168.149.125:5000/Student/Students`);
+            const response = await axios.get(`http://localhost:5000/Student/Students`);
+            console.log("response data: ", response.data)
             if (Array.isArray(response.data)) {
                 const formattedData = response.data.map((student) => ({
                     _id: student._id || "N/A",
@@ -75,8 +76,11 @@ const AdminStudents = () => {
 
     return (
         <div className="w-3/4 mx-auto">
-            <h1 className="tracking-wide mt-10 text-center text-5xl mb-10 font-semibold text-gray-800 dark:text-gray-200"><u>Student List</u></h1>
-            <input value={searchQuery} onChange={handleSearch} type="search" placeholder="Search Student" className="bg-gray-800 text-white p-2 outline-none mb-4 rounded" />
+            <h1 className="tracking-wide mt-10 text-center text-5xl mb-10 font-semibold text-gray-800 dark:text-gray-200"><u>All Student's List</u></h1>
+            <div className="bg-gray-800 text-white outline-none p-2 mb-4 rounded flex justify-center items-center">
+                <Search />
+                <input value={searchQuery} onChange={handleSearch} type="search" placeholder="Search Student" className="bg-gray-800 w-full text-white outline-none p-2 rounded" />
+            </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead className="bg-gray-50 dark:bg-gray-700">

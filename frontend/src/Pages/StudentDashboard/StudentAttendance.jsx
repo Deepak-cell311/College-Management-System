@@ -56,7 +56,6 @@ const StudentAttendance = () => {
 
     const student = JSON.parse(studentData);
     const sclassName = student?._id;
-    console.log("sclassName: ", sclassName)
 
     setLoading(true);
     try {

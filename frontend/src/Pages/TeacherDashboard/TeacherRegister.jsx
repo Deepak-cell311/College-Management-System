@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../../assets/logo.jpg";
 import dams from "../../assets/dams.jpg";
@@ -10,6 +10,7 @@ import { Asterisk } from 'lucide-react';
 const TeacherRegister = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
+  const [course, setCourse] = useState([])
 
   const handleOnSubmit = async (data) => {
     console.log(data)
@@ -39,9 +40,27 @@ const TeacherRegister = () => {
     }
   };
 
+
+  const getCourse = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/Sclass/SclassList`)
+      console.log("response data: ", response)
+      if (response.status === 200 || response.status === 201) {
+        setCourse(response.data)
+      }
+    } catch (error) {
+      toast.error(error)
+      console.error(error)
+    }
+  }
+
   const onError = (errors) => {
     Object.values(errors).forEach(error => toast.error(error.message));
   };
+
+  useEffect(() => {
+    getCourse()
+  })
 
   return (
     <>
@@ -79,7 +98,7 @@ const TeacherRegister = () => {
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
 
               <label htmlFor="teacherSclass" className='text-black text-xl flex'>Course <span><Asterisk color="#ff0000" className='size-4' /></span></label>
-              <input
+              {/* <input
                 {...register('teacherSclass', {
                   required: "Course is required",
                   minLength: { value: 2, message: "Course must be minimum 2 characters long" }
@@ -88,7 +107,21 @@ const TeacherRegister = () => {
                 name='teacherSclass'
                 id='teacherSclass'
                 placeholder='Course'
-                className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
+                className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' /> */}
+                
+                <select {...register('teacherSclass', {
+                    required: "Select your course",
+                    minLength: { value: 2, message: "Course must be minimum 2 characters long" }
+                  })} name="teacherSclass" id="teacherSclass" className=' cursor-pointer outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50'>
+                <option value="" aria-readonly aria-placeholder='Select your course'>Select Your Course</option>
+                {course.map((course) => (
+                  <option 
+                    value={course.sclassName} aria-readonly
+                    className='cursor-pointer outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50'
+                  >{course.sclassName}</option>
+                ))}
+              </select>
+
 
               <label htmlFor="teacherSubject" className='text-black text-xl flex'>Subject <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from "../../assets/logo.jpg";
 import dams from "../../assets/dams.jpg";
@@ -10,8 +10,10 @@ import { Asterisk } from 'lucide-react';
 const StudentRegistration = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
+  const [course, setCourse] = useState([])
 
   const handleOnSubmit = async (data) => {
+    console.log(data)
 
     try {
       const response = await axios.post("http://localhost:5000/Student/StudentReg", {
@@ -38,10 +40,26 @@ const StudentRegistration = () => {
     }
   };
 
+  const getCourse = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/Sclass/SclassList`)
+      console.log("response data: ", response)
+      if (response.status === 200 || response.status === 201) {
+        setCourse(response.data)
+      }
+    } catch (error) {
+      toast.error(error)
+      console.error(error)
+    }
+  }
+
   const onError = (errors) => {
     Object.values(errors).forEach(error => toast.error(error.message));
   };
 
+  useEffect(() => {
+    getCourse()
+  }, [])
   return (
     <>
       <div className='main flex flex-col md:h-screen h-screen bg-blue-600 w-full md:flex-row  text-xs'>
@@ -69,16 +87,16 @@ const StudentRegistration = () => {
               <input
                 {...register('rollNum', {
                   required: "Roll Number is required",
-                  pattern: { value: /^[0-9]+$/, message: "Invalid roll number" }
+                  // pattern: { value: /^[0-14]+$/, message: "Invalid roll number" }
                 })}
-                type="text"
+                type="number"
                 name='rollNum'
                 id='rollNum'
                 placeholder='Enter Your Roll Number'
                 className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
 
               <label htmlFor="course" className='text-black text-xl flex'>Course <span><Asterisk color="#ff0000" className='size-4' /></span></label>
-              <input
+              {/* <input
                 {...register('course', {
                   required: "course is required",
                   minLength: { value: 2, message: "Course must be minimum 2 characters long" }
@@ -87,8 +105,20 @@ const StudentRegistration = () => {
                 name='course'
                 id='course'
                 placeholder='Course'
-                className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
+                className='outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' /> */}
 
+              <select {...register('course', {
+                    required: "Select your course",
+                    minLength: { value: 2, message: "Course must be minimum 2 characters long" }
+                  })} name="course" id="course" className=' cursor-pointer outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50'>
+                <option value="" aria-readonly aria-placeholder='Select your course'>Select Your Course</option>
+                {course.map((course) => (
+                  <option 
+                    value={course.sclassName} aria-readonly
+                    className='cursor-pointer outline-none p-4 mb-3 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50'
+                  >{course.sclassName}</option>
+                ))}
+              </select>
 
               <label htmlFor="password" className='text-black text-xl flex'>Password <span><Asterisk color="#ff0000" className='size-4' /></span></label>
               <input

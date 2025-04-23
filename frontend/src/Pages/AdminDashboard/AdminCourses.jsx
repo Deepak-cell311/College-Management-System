@@ -38,12 +38,13 @@ const AdminCourses = () => {
 
   const handleOnSubmitCourse = async (data) => {
     try {
-      const response = await axios.post('http://192.168.149.125:5000/Sclass/SclassCreate', {
+      const response = await axios.post('http://localhost:5000/Sclass/SclassCreate', {
         sclassName: data.courseName,
+        sclassCode: data.courseCode,
       });
       if (response.data) {
-        const { sclassName, _id } = response.data;
-        const courseTodoData = [...courseTodo, { _id, text: sclassName }];
+        const { sclassName, _id, sclassCode } = response.data;
+        const courseTodoData = [...courseTodo, { _id, text: sclassName, code: sclassCode }];
         setCourseTodo(courseTodoData);
         localStorage.setItem('courseTodo', JSON.stringify(courseTodoData));
         reset();
@@ -58,11 +59,13 @@ const AdminCourses = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://192.168.149.125:5000/Sclass/SclassList');
+      const response = await axios.get('http://localhost:5000/Sclass/SclassList');
+      console.log("Response data: ", response.data);
       if (Array.isArray(response.data)) {
         const formattedCourse = response.data.map((course) => ({
           _id: course._id,
           text: course.sclassName,
+          code: course.sclassCode,
         }));
         setCourseTodo(formattedCourse);
         localStorage.setItem('courseTodo', JSON.stringify(formattedCourse));
@@ -74,7 +77,7 @@ const AdminCourses = () => {
 
   const deleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://192.168.149.125:5000/Sclass/Sclass/${id}`);
+      const response = await axios.delete(`http://localhost:5000/Sclass/Sclass/${id}`);
       if (response.status === 200) {
         const updateCourseTodo = setCourseTodo((courses) => courses.filter((course) => course._id !== id));
         localStorage.setItem('courseTodo', JSON.stringify(updateCourseTodo));
@@ -107,10 +110,10 @@ const AdminCourses = () => {
           {isModalOpen && (
             <div className="modal-container absolute inset-0 flex justify-center items-center bg-gray-900 bg-opacity-70 z-50">
               <div className="addCoursesData bg-gray-800 border border-gray-600 rounded-lg shadow-lg p-8 w-full max-w-lg relative">
-                <span className="cursor-pointer absolute right-3 top-3 text-gray-400 hover:text-gray-200" onClick={handleCourseButton}><X /></span>
+                <span className="cursor-pointer absolute right-2 h-3 w-5 top-1 text-gray-400 hover:text-gray-200" onClick={handleCourseButton}><X /></span>
                 <img className="mx-auto h-40 mb-6" src={courseModel} alt="Add course" />
                 <form onSubmit={handleSubmit(handleOnSubmitCourse, onError)} className="flex flex-col">
-                  <label htmlFor="courseName" className="text-lg mb-2">Course Name</label>
+                  <label htmlFor="courseName" className="text-lg mb-2 text-left">Course Name</label>
                   <input
                     {...register("courseName", {
                       required: "Course Name is Required",
@@ -122,8 +125,20 @@ const AdminCourses = () => {
                     placeholder="Enter course name"
                     className="mb-5 outline-none border border-gray-700 py-3 px-4 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
                   />
-                  <div className="flex justify-between gap-4">
-                    <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700 py-3 rounded-lg">Create Course</button>
+                  <label htmlFor="courseName" className="text-lg mb-2 text-left">Course Code</label>
+                  <input
+                    {...register("courseCode", {
+                      // required: "Course Code is Required",
+                      minLength: { value: 2, message: "Minimum Two Characters Required" }
+                    })}
+                    type="text"
+                    name="courseCode"
+                    id="courseCode"
+                    placeholder="Enter course code"
+                    className="mb-5 outline-none border border-gray-700 py-3 px-4 bg-gray-700 text-white rounded-lg focus:ring-2 focus:ring-cyan-500"
+                  />
+                  <div className="flex justify-between gap-3">
+                    <button type="submit" className="w-full bg-cyan-600 hover:bg-cyan-700 py-2 rounded-lg">Create Course</button>
                     <button type="button" onClick={handleCourseButton} className="w-full bg-red-600 hover:bg-red-700 py-3 rounded-lg">Cancel</button>
                   </div>
                 </form>
@@ -144,9 +159,9 @@ const AdminCourses = () => {
                     >
                       View
                     </button>
-                    <button className="bg-green-500 hover:bg-green-400 text-gray-900 py-2 px-3 rounded-lg">
-                      <Plus className="w-5 h-5" />
-                    </button>
+                    {/* <button className="bg-green-500 hover:bg-green-400 text-gray-900 py-2 px-3 rounded-lg">
+                      <Plus className="w-5 h-5"/>
+                    </button> */}
                     <button
                       className="bg-red-600 hover:bg-red-500 text-white py-2 px-3 rounded-lg"
                       onClick={() => deleteTodo(todo._id)}

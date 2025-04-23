@@ -123,11 +123,11 @@ const StudentHome = () => {
                     </div>
                 </div>
                 <span className='flex items-center text-blue-400 hover:text-blue-300 mt-10'><u>All Notices </u></span>
-                {noticeList.map((todoData, index) => (<div className='mt-4 px-5 py-5 border-2 border-black-900 shadow-2xl shadow-black-900' key={index}>
+                {/* {noticeList.map((todoData, index) => (<div className='mt-4 px-5 py-5 border-2 border-black-900 shadow-2xl shadow-black-900' key={index}>
                     <span className=''>Notice: {todoData.title || "N/A"}</span>
                     <p className=' text-sm italic'>Date: {todoData.date || "N/A"}</p>
                     <p className=' text-xl mt-5 italic'>{todoData.details || "N/A"}</p>
-                </div>))}
+                </div>))} */}
             </div>
         </>
     )

@@ -2,10 +2,11 @@ const bcrypt = require('bcrypt');
 const Student = require('../models/studentSchema.js');
 const Subject = require('../models/subjectSchema.js');
 const Sclass = require('../models/sclassSchema.js');
+const cloudinary = require('cloudinary').v2
 
 const studentRegister = async (req, res) => {
     try {
-        const sclassobj = await Sclass.findOne({ sclassName: req.body.course});
+        const sclassobj = await Sclass.findOne({ sclassName: req.body.course });
         if (!sclassobj) {
             return res.status(400).json({ message: 'Class not exists' });
         }
@@ -24,7 +25,7 @@ const studentRegister = async (req, res) => {
             sclassName: sclassobj._id,
         });
         let result = await student.save();
-        result.password = undefined;
+        // result.password = undefined;
         res.send(result);
     } catch (err) {
         res.status(500).json(err);
@@ -94,7 +95,7 @@ const classStudents = async (req, res) => {
             res.send({ message: "No student found" });
         }
     } catch (err) {
-        res.status(500).json({message: "An error occured", err: err.message});
+        res.status(500).json({ message: "An error occured", err: err.message });
     }
 };
 
@@ -109,7 +110,7 @@ const deleteStudent = async (req, res) => {
 
 const deleteStudents = async (req, res) => {
     try {
-        const result = await Student.deleteMany({ })
+        const result = await Student.deleteMany({})
         if (result.deletedCount === 0) {
             res.send({ message: "No students found to delete" })
         } else {
@@ -178,9 +179,9 @@ const studentAttendance = async (req, res) => {
         if (!student) {
             return res.send({ message: 'Student not found' });
         }
-        const subject = await Subject.findOne({subName:subName});
+        const subject = await Subject.findOne({ subName: subName });
         const existingAttendance = student.attendance.find(
-            (a) =>a.date.toDateString() === new Date(date).toDateString() && a.subName.toString() === subName
+            (a) => a.date.toDateString() === new Date(date).toDateString() && a.subName.toString() === subName
         );
         if (existingAttendance) {
             existingAttendance.status = status;
@@ -191,7 +192,7 @@ const studentAttendance = async (req, res) => {
             if (attendedSessions >= subject.sessions) {
                 return res.send({ message: 'Maximum attendance limit reached' });
             }
-            student.attendance.push({ date, status, subName});
+            student.attendance.push({ date, status, subName });
         }
         const result = await student.save();
         return res.send(result);
@@ -199,50 +200,6 @@ const studentAttendance = async (req, res) => {
         res.status(500).json(error);
     }
 };
-
-// const studentAttendances = async (req, res) => {
-//     try {
-//         const subject = await Subject.findById(req.body.subjectId);
-//         if (!subject) {
-//             return res.send({ message: 'Subject Not Exists' });
-//         }
-//         const attendances = req.body.attendanceData.map((singledata) => ({
-//             subName: subject.subName,
-//             status: singledata.status,
-//             date: singledata.date,
-//             student: singledata.studentId,
-//         }));
-//         let i = 0;
-//         while (attendances[i] !== undefined) {
-//             let student = await Student.findById(attendances[i].student);
-//             let status = attendances[i].status;
-//             let date = attendances[i].date;
-//             let subName = attendances[i].subName;
-//             const existingAttendance = student.attendance.find(
-//                 (a) => a.date.toDateString() === new Date(date).toDateString() && a.subName.toString() === subName
-//             );
-//             if (existingAttendance) {
-//                 existingAttendance.status = status;
-//             } else {
-//                 const attendedSessions = student.attendance.filter(
-//                     (a) => a.subName.toString() === subName
-//                 ).length;
-//                 if (attendedSessions >= subject.sessions) {
-//                     return res.send({ message: 'Maximum attendance limit reached' });
-//                 }
-//                 student.attendance.push({ date, status, subName });
-//             }
-//             const result = await student.save();
-//             i++;
-//         }
-//         return res.send("Attendance Marked Successfully!!")
-//     }
-//     catch (error) {
-//         console.error("Error in studentAttendance:", error);
-//         res.status(500).json({ message: 'Internal Server Error', error: error.message });
-//     }
-// };
-
 
 const studentAttendances = async (req, res) => {
     try {
@@ -278,11 +235,8 @@ const studentAttendances = async (req, res) => {
     }
 };
 
-
-
-
 const clearAllStudentsAttendanceBySubject = async (req, res) => {
-    const sub = await Subject.findById( req.params.id );
+    const sub = await Subject.findById(req.params.id);
     try {
         const subName = sub.subName;
         const result = await Student.updateMany(
@@ -312,7 +266,7 @@ const removeStudentAttendanceBySubject = async (req, res) => {
         const subName = req.body.subName;
         const result = await Student.updateOne(
             { _id: studentId },
-            { $pull: { attendance: { subName : subName } } }
+            { $pull: { attendance: { subName: subName } } }
         );
         return res.send(result);
     } catch (err) {
@@ -333,4 +287,46 @@ const removeStudentAttendance = async (req, res) => {
     }
 };
 
-module.exports = { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, classStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance};
+const uploadStudentProfile = async (req, res) => {
+    try {
+        // console.log("Response data : ", localStorage.getItem('Student'))
+
+        //  Extracting the id of an student --------> use local storage
+        const { studentId } = req.body;
+        if (!studentId) {
+            return res.status(400).json({ message: "Student ID is required" })
+        }
+
+        // Check file uploaded or not
+        if (!req.files || !req.files.image) {
+            return res.status(400).json({ message: 'File is not uploaded yet' })
+        }
+
+        const file = req.files.image;
+
+        // Uploading image in cloudinary
+        const result = await cloudinary.uploader.upload(file.tempFilePath, {
+            folder: "studentProfile"         // Make this on cloudinary
+        })
+
+        // Save image details to MongoDB
+        const updatingStudent = await Student.findByIdAndUpdate(
+            studentId,
+            { $push: { images: { public_id: result.public_id, url: result.secure_url } } },
+            { new: true }
+        )
+
+        if(!updatingStudent) { return res.status(400).json({message: "Student not found"})}
+
+        res.status(200).json({
+            message: "Image upload successfully", 
+            imageUrl: result.secure_url, 
+            student: updatingStudent
+        })
+
+    } catch (error) {
+        console.error("Image upload failed", error)
+        res.status(500).json({message: "Image upload failed", error: error.message})
+    }
+}
+module.exports = { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, classStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance, uploadStudentProfile };
