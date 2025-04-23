@@ -16,6 +16,7 @@ const paymentRoute = require("./routes/paymentRoute.js")
 const fileUpload = require("express-fileupload")
 const cloudinary = require('cloudinary');
 const PORT = process.env.PORT || 5000
+const job = require("./lib/cron.js")
 
 dotenv.config();
 
