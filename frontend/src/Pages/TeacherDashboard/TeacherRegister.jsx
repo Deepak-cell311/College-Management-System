@@ -15,7 +15,7 @@ const TeacherRegister = () => {
   const handleOnSubmit = async (data) => {
     console.log(data)
     try {
-      const response = await axios.post("http://localhost:5000/Teacher/TeacherReg", {
+      const response = await axios.post("https://college-management-system-s6xa.onrender.com/Teacher/TeacherReg", {
         name: data.name,
         email: data.email,
         teacherSubject: data.teacherSubject,
@@ -43,7 +43,7 @@ const TeacherRegister = () => {
 
   const getCourse = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/Sclass/SclassList`)
+      const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Sclass/SclassList`)
       console.log("response data: ", response)
       if (response.status === 200 || response.status === 201) {
         setCourse(response.data)

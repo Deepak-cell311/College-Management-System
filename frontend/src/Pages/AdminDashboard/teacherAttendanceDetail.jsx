@@ -39,7 +39,7 @@ const TeacherAttendanceDetail = () => {
     const fetchTeacherData = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/Teacher/Teacher/${teacherId}`);
+            const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Teacher/Teacher/${teacherId}`);
             if (response.data) {
                 setTeacherData([{
                     ...response.data,

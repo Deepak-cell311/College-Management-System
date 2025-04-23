@@ -27,7 +27,7 @@ const PaymentPage = () => {
       }
 
       // Call backend API to create order
-      const response = await axios.post("http://localhost:5000/payment/create-order", {
+      const response = await axios.post("https://college-management-system-s6xa.onrender.com/payment/create-order", {
         amount: amount , // Convert to paisa
         currency: "INR",
       });
@@ -130,7 +130,7 @@ const PaymentPage = () => {
 
   const courseDataShow = async() => {
     try {
-      const fetchCourseData = await axios.get(`http://localhost:5000/Sclass/SclassList`);
+      const fetchCourseData = await axios.get(`https://college-management-system-s6xa.onrender.com/Sclass/SclassList`);
       console.log("Response data: ", fetchCourseData);
       if(fetchCourseData.status === 200 || fetchCourseData.status === 201 ){
         setFetchedCourseData(fetchCourseData.data);
@@ -143,7 +143,7 @@ const PaymentPage = () => {
 
   const showFeesDetail = async () => {
     try {
-      const fetchFeesData = await axios.get(`http://localhost:5000/Fees/get-fees/`);
+      const fetchFeesData = await axios.get(`https://college-management-system-s6xa.onrender.com/Fees/get-fees/`);
       console.log("Response data: ", fetchFeesData);
       if(fetchFeesData.status === 200 || fetchFeesData.status === 201 ){
         setFetchedCourseData(fetchFeesData.data);

@@ -14,7 +14,7 @@ const StudentLogin = () => {
 
   const handleOnSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:5000/Student/StudentLogin", {
+      const response = await axios.post("https://college-management-system-s6xa.onrender.com/Student/StudentLogin", {
         name: data.name,
         rollNum: data.rollNum,
         password: data.password,

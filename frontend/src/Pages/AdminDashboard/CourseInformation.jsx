@@ -118,7 +118,7 @@ const CourseInformation = () => {
   // Add Subject
   const addSubjectData = async (data) => {
     try {
-      const response = await axios.post(`http://localhost:5000/Subject/SubjectCreate/${courseId}`, {
+      const response = await axios.post(`https://college-management-system-s6xa.onrender.com/Subject/SubjectCreate/${courseId}`, {
         ...data,
         courseId,
       });
@@ -137,7 +137,7 @@ const CourseInformation = () => {
   // Fetch data from the database
   const fetchSubjectData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/Subject/AllSubjects');
+      const response = await axios.get('https://college-management-system-s6xa.onrender.com/Subject/AllSubjects');
       if (Array.isArray(response.data)) {
         const formattedStudent = response.data.map((subject) => ({
           _id: subject._id,
@@ -164,7 +164,7 @@ const CourseInformation = () => {
   // Delete Subject Data
   const deleteSubjectTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Subject/Subject/${id}`);
+      const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Subject/Subject/${id}`);
       if (response.status === 200) {
         setSubjectTodos(prev => prev.filter(subject => subject._id !== id));
         toast.success("Subject deleted successfully");
@@ -184,7 +184,7 @@ const CourseInformation = () => {
   const fetchStudentData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/Student/ClassStudents/${courseId}`);
+      const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Student/ClassStudents/${courseId}`);
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((student) => ({
           _id: student._id,
@@ -208,7 +208,7 @@ const CourseInformation = () => {
 
   const deleteStudent = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/Student/Student/${id}`);
+      await axios.delete(`https://college-management-system-s6xa.onrender.com/Student/Student/${id}`);
       setStudentTodos((prev) => prev.filter((student) => student._id !== id));
       toast.success("Student deleted successfully");
     } catch (error) {
@@ -232,7 +232,7 @@ const CourseInformation = () => {
   const fetchTeacherData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:5000/Teacher/Teachers');
+      const response = await axios.get('https://college-management-system-s6xa.onrender.com/Teacher/Teachers');
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((teacher) => ({
           _id: teacher._id,
@@ -256,7 +256,7 @@ const CourseInformation = () => {
 
   const deleteTeacher = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Teacher/Teacher/${id}`);
+      const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Teacher/Teacher/${id}`);
       if (response.status === 200) {
         setTeacher((teachers) => teachers.filter((teacher) => teacher._id !== id));
         toast.success('Subject deleted successfully');
@@ -295,7 +295,7 @@ const CourseInformation = () => {
 
     console.log("formatted Data: ", formattedData)
     try {
-      const response = await axios.post(`http://localhost:5000/Fees/Fee`, formattedData);
+      const response = await axios.post(`https://college-management-system-s6xa.onrender.com/Fees/Fee`, formattedData);
       toast.success("Fee data submitted successfully!");
       console.log("Response data: ", response)
       reset()
@@ -312,7 +312,7 @@ const CourseInformation = () => {
   const ShowFeesData = async () => {
     setLoading(true)
     try {
-      const fetchFeesData = await axios.get(`http://localhost:5000/Fees/get-fees/${courseId}`);
+      const fetchFeesData = await axios.get(`https://college-management-system-s6xa.onrender.com/Fees/get-fees/${courseId}`);
       console.log("Fetch fees data: ", fetchFeesData)
       if (fetchFeesData.status === 200 || fetchFeesData.status === 201) {
         setFeesData(fetchFeesData.data);

@@ -25,7 +25,7 @@ const AdminFees = () => {
 
     const deleteStudent = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/Student/Student/${id}`);
+            await axios.delete(`https://college-management-system-s6xa.onrender.com/Student/Student/${id}`);
             setStudentTodo((prev) => prev.filter((student) => student._id !== id));
             setFilteredStudents((prev) => prev.filter((student) => student._id !== id));
             toast.success("Student deleted successfully");

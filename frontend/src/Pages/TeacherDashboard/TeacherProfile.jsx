@@ -22,7 +22,7 @@ const TeacherProfile = () => {
     //         }
 
     //         try {
-    //             const response = await axios.get(`http://localhost:5000/Teacher/Teacher/${teacherId}`);
+    //             const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Teacher/Teacher/${teacherId}`);
     //             console.log("Tecaher response: ", response.data)
     //             if (response.data) {
     //                 setTeacherData(response.data);
@@ -50,7 +50,7 @@ const TeacherProfile = () => {
 
     // const handleSave = async () => {
     //     try {
-    //         await axios.put(`http://localhost:5000/Teacher/Teacher/${teacherId}`, formData); // Update API endpoint
+    //         await axios.put(`https://college-management-system-s6xa.onrender.com/Teacher/Teacher/${teacherId}`, formData); // Update API endpoint
     //         setTeacherData(formData);
     //         localStorage.setItem('Teacher', JSON.stringify(formData)); // Update local storage
     //     } catch (error) {
@@ -124,7 +124,7 @@ const TeacherProfile = () => {
             formData.append("image", selectedFile);
             formData.append("teacherId", teacherData._id);  // Ensure teacher is sent
 
-            const response = await axios.post("http://localhost:5000/Teacher/TeacherProfile", formData, {
+            const response = await axios.post("https://college-management-system-s6xa.onrender.com/Teacher/TeacherProfile", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
@@ -166,7 +166,7 @@ const TeacherProfile = () => {
         const parsedTeacher = JSON.parse(storedTeacherData)
         const id = parsedTeacher?._id
         try {
-            const response = await axios.get(`http://localhost:5000/Teacher/Teacher/${id}`)
+            const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Teacher/Teacher/${id}`)
             console.log("response of get : ", response.data)
             if (response.status === 200) {
                 setImage(response.data.images)

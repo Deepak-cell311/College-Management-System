@@ -38,7 +38,7 @@ const AdminCourses = () => {
 
   const handleOnSubmitCourse = async (data) => {
     try {
-      const response = await axios.post('http://localhost:5000/Sclass/SclassCreate', {
+      const response = await axios.post('https://college-management-system-s6xa.onrender.com/Sclass/SclassCreate', {
         sclassName: data.courseName,
         sclassCode: data.courseCode,
       });
@@ -59,7 +59,7 @@ const AdminCourses = () => {
 
   const fetchCourses = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/Sclass/SclassList');
+      const response = await axios.get('https://college-management-system-s6xa.onrender.com/Sclass/SclassList');
       console.log("Response data: ", response.data);
       if (Array.isArray(response.data)) {
         const formattedCourse = response.data.map((course) => ({
@@ -77,7 +77,7 @@ const AdminCourses = () => {
 
   const deleteTodo = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Sclass/Sclass/${id}`);
+      const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Sclass/Sclass/${id}`);
       if (response.status === 200) {
         const updateCourseTodo = setCourseTodo((courses) => courses.filter((course) => course._id !== id));
         localStorage.setItem('courseTodo', JSON.stringify(updateCourseTodo));

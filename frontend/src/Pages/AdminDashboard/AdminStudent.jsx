@@ -148,7 +148,7 @@ const AdminStudent = () => {
 
   const deleteAttendance = async (id) => {
     try {
-      const response = await axios.delete(`http://localhost:5000/Subject/Subject/${id}`);
+      const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Subject/Subject/${id}`);
       if (response.status === 200) {
         setSubjectTodo((subjects) => subjects.filter((subject) => subject._id !== id));
         toast.success('Subject deleted successfully');

@@ -17,7 +17,7 @@ const StudentSubject = () => {
     const sclassName = student.sclassName?._id;
 
     try {
-      const response = await axios.get(`http://localhost:5000/Subject/ClassSubjects/${sclassName}`);
+      const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Subject/ClassSubjects/${sclassName}`);
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           id: subject._id,

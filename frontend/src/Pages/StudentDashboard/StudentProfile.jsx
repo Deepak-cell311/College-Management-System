@@ -61,7 +61,7 @@ const StudentProfile = () => {
             formData.append("image", selectedFile);
             formData.append("studentId", studentData._id);  // Ensure adminId is sent
 
-            const response = await axios.post("http://localhost:5000/Student/StudentProfile", formData, {
+            const response = await axios.post("https://college-management-system-s6xa.onrender.com/Student/StudentProfile", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
 
@@ -103,7 +103,7 @@ const StudentProfile = () => {
             const parsedStudent = JSON.parse(storedStudentData)
             const id = parsedStudent._id
             try {
-                const response = await axios.get(`http://localhost:5000/Student/Student/${id}`)
+                const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Student/Student/${id}`)
                 console.log("response of get : ", response.data)
                 if (response.status === 200) {
                     setImage(response.data.images)

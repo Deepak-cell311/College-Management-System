@@ -21,7 +21,7 @@ const StudentFees = () => {
         console.log("sclassName: ", sclassName)
         setLoading(true)
         try {
-            const fetchFeesData = await axios.get(`http://localhost:5000/Fees/get-fees/${sclassName}`);
+            const fetchFeesData = await axios.get(`https://college-management-system-s6xa.onrender.com/Fees/get-fees/${sclassName}`);
             console.log("Fetch fees data: ", fetchFeesData)
             if (fetchFeesData.status === 200 || fetchFeesData.status === 201) {
                 setFeesData(fetchFeesData.data);

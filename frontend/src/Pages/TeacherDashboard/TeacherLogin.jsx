@@ -14,7 +14,7 @@ const TeacherLogin = () => {
 
   const handleOnSubmit = async (data) => {
     try {
-      const response = await axios.post("http://localhost:5000/Teacher/TeacherLogin", {
+      const response = await axios.post("https://college-management-system-s6xa.onrender.com/Teacher/TeacherLogin", {
         name: data.name,
         email: data.email,
         password: data.password,

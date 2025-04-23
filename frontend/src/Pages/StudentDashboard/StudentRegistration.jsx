@@ -16,7 +16,7 @@ const StudentRegistration = () => {
     console.log(data)
 
     try {
-      const response = await axios.post("http://localhost:5000/Student/StudentReg", {
+      const response = await axios.post("https://college-management-system-s6xa.onrender.com/Student/StudentReg", {
         name: data.name,
         rollNum: data.rollNum,
         password: data.password,
@@ -42,7 +42,7 @@ const StudentRegistration = () => {
 
   const getCourse = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/Sclass/SclassList`)
+      const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Sclass/SclassList`)
       console.log("response data: ", response)
       if (response.status === 200 || response.status === 201) {
         setCourse(response.data)
