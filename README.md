@@ -190,5 +190,3 @@ Special thanks to all the contributors and open-source projects that helped insp
 For any inquiries, you can reach me at [deshdeepakbajpai8@gmail.com](mailto:deshdeepakbajpai8@gmail.com).
 
 ---
-
-This README should provide users with everything they need to get started, as well as a clear understanding of your College Management System's purpose and functionality. Let me know if you'd like to add or modify any part of it!
