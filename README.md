@@ -3,6 +3,8 @@
 A comprehensive College Management System built using the **MERN (MongoDB, Express, React, Node.js)** stack. This system is designed to streamline college administration processes, providing individual dashboards for admins, teachers, and students. It enables efficient management of college resources, attendance, fees, subjects, and more.
 ![_- visual selection](https://github.com/user-attachments/assets/56a912f9-db89-4490-9883-fb11b0e1b36a)
 
+### Performance
+<img width="1110" height="203" alt="image" src="https://github.com/user-attachments/assets/6f8d0d7a-ac24-45bf-b003-b424579e32b0" />
 
 ## 🎯 Project Overview
 
