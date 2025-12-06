@@ -2,7 +2,7 @@
 
 const TermsOfService = () => {
   return (
-    <LegalPageLayout title="Terms of Service" lastUpdated="January 1, 2025">
+    <div title="Terms of Service" lastUpdated="January 1, 2025">
       <div className="space-y-8">
         <section>
           <h2 className="mb-4 text-xl font-semibold text-foreground">1. Acceptance of Terms</h2>
@@ -159,7 +159,7 @@ const TermsOfService = () => {
           </div>
         </section>
       </div>
-    </LegalPageLayout>
+    </div>
   );
 };
 

@@ -2,7 +2,7 @@
 
 const PrivacyPolicy = () => {
   return (
-    <LegalPageLayout title="Privacy Policy" lastUpdated="January 1, 2025">
+    <div title="Privacy Policy" lastUpdated="January 1, 2025">
       <div className="space-y-8">
         <section>
           <h2 className="mb-4 text-xl font-semibold text-foreground">1. Introduction</h2>
@@ -118,7 +118,7 @@ const PrivacyPolicy = () => {
           </div>
         </section>
       </div>
-    </LegalPageLayout>
+    </div>
   );
 };
 
