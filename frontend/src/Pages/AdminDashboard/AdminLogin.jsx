@@ -9,6 +9,7 @@ import { toast } from 'react-toastify';
 const AdminForm = () => {
 
   const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
   const {
     register,
     handleSubmit,
@@ -17,6 +18,7 @@ const AdminForm = () => {
 
   const handleOnSubmitAdmin = async (data) => {
     try {
+      setLoading(true)
       const response = await axios.post("https://college-management-system-s6xa.onrender.com/Admin/AdminLogin", {
         email: data.email,
         password: data.password
@@ -24,7 +26,7 @@ const AdminForm = () => {
       if (response.data && response.data._id) {
         const user = response.data.user
         localStorage.setItem("Admin", JSON.stringify(user))
-        toast.success(`Admin login successful.`)
+        toast.success("Admin login successful.")
         navigate("/admin")
       }
       else {
@@ -39,6 +41,8 @@ const AdminForm = () => {
       } else {
         toast.error("An error occurred. Please try again.")
       }
+    } finally{
+      setLoading(false)
     }
   }
 
@@ -109,7 +113,7 @@ const AdminForm = () => {
               </button> */}
             </div>
 
-            <button className='bg-cyan-500 hover:bg-cyan-700 text-white mt-5 py-4 font-bold w-full'>Admin Login</button>
+            <button className='bg-cyan-500 hover:bg-cyan-700 text-white mt-5 py-4 font-bold w-full'>{loading ? "Please wait..." : "Admin Login"}</button>
           </form>
         </div>
       </div>

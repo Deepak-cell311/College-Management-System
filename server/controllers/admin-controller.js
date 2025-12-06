@@ -16,37 +16,19 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// const adminLogIn = async (req, res) => {
-//     if (req.body.email && req.body.password) {
-//         let admin = await Admin.findOne({ email: req.body.email });
-//         if (admin) {
-//             if (req.body.password === admin.password) {
-//                 admin.password = undefined;
-//                 res.send(admin);
-//             } else {
-//                 res.send({ message: "Invalid password" });
-//             }
-//         } else {
-//             res.send({ message: "User not found" });
-//         }
-//     } else {
-//         res.send({ message: "Email and password are required" });
-//     }
-// };
-
 const adminLogIn = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
         }
-        const admin = await Admin.find({ email });  
+        const admin = await Admin.find({ email });
         if (!admin) {
             return res.status(404).json({ message: "Admin not found" });
         }
         const isMatch = await bcrypt.compare(password, admin[0].password); // Compare the password with the hashed password
-        if (password !== admin[0].password) {
-            return res.status(401).json({ message: "Invalid password" });
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid password" });   // 401 is for unauthorize access
         }
         admin[0].password = undefined; // Remove password from the response
         return res.status(200).json(admin[0]); // Send the admin details without the password
@@ -56,31 +38,34 @@ const adminLogIn = async (req, res) => {
 }
 const getAdminDetail = async (req, res) => {
     try {
-        let admin = await Admin.findById(req.params.id);
+        const admin = await Admin.findById(req.params.id);
         if (admin) {
             admin.password = undefined;
-            res.send(admin);
+            return res.send(admin);
         }
         else {
-            res.send({ message: "No admin found" });
+            return res.send({ message: "No admin found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 };
 
 const deleteAdmin = async (req, res) => {
     try {
-        const result = await Admin.findByIdAndDelete(req.params.id)
-        await Sclass.deleteMany({ college: req.params.id });
-        await Student.deleteMany({ college: req.params.id });
-        await Teacher.deleteMany({ college: req.params.id });
-        await Subject.deleteMany({ college: req.params.id });
-        await Notice.deleteMany({ college: req.params.id });
-        await Complain.deleteMany({ college: req.params.id });
-        res.send(result)
+        const adminId = req.params.id;
+        const [admin] = await Promise.all([
+            Admin.findByIdAndDelete(adminId),
+            Sclass.deleteMany({ college: adminId }),
+            Student.deleteMany({ college: adminId }),
+            Teacher.deleteMany({ college: adminId }),
+            Subject.deleteMany({ college: adminId }),
+            Notice.deleteMany({ college: adminId }),
+            Complain.deleteMany({ college: adminId }),
+        ])
+        return res.send(admin)
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 };
 
@@ -90,9 +75,9 @@ const updateAdmin = async (req, res) => {
             { $set: req.body },
             { new: true })
         result.password = undefined;
-        res.send(result)
+        return res.send(result)
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 };
 
@@ -129,15 +114,15 @@ const uploadProfileImage = async (req, res) => {
             return res.status(404).json({ message: "Admin not found" });
         }
 
-        res.status(200).json({ 
-            message: "Image uploaded successfully", 
+        return res.status(200).json({
+            message: "Image uploaded successfully",
             imageUrl: result.secure_url,
             admin: updatedAdmin
         });
 
     } catch (error) {
         console.error("Image Upload Error:", error);
-        res.status(500).json({ message: "Image upload failed", error: error.message });
+        return res.status(500).json({ message: "Image upload failed", error: error.message });
     }
 };
 

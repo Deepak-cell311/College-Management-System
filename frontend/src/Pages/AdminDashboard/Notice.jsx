@@ -1,169 +1,214 @@
-import React, { useEffect, useState } from 'react'
-import courseModel from "./courseModel.png"
-import { Trash2 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
-import axios from "axios"
+import React, { useEffect, useState } from 'react';
+import { Trash2, Plus, X, Calendar, FileText, Type } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
+import axios from "axios";
+import { ColorRing } from 'react-loader-spinner';
 
 const Notice = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [noticeTodo, setNoticeTodo] = useState([])
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [notices, setNotices] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const {
         handleSubmit,
         register,
         reset,
         formState: { errors }
-    } = useForm()
+    } = useForm();
 
     const onError = (errors) => {
         Object.values(errors).forEach(error => {
-            toast.error(error.message)
-        })
-    }
+            toast.error(error.message);
+        });
+    };
 
-    // Notice Creation complete
-    const handleSubmitNotice = async (data) => {
-        try {
-            const response = await axios.post("https://college-management-system-s6xa.onrender.com/Notice/NoticeCreate", {
-                title: data.title,
-                details: data.details,
-                date: data.date
-            })
-            console.log("response: ", response.data)
-            if (response.data) {
-                const { title, details, date, _id } = response.data;
-                const addNoticeData = [...noticeTodo, { _id: _id, text: { noticeTitle: title, noticeDetail: details, noticeDate: date } }]
-                setNoticeTodo(addNoticeData)
-                localStorage.setItem('noticeTodo', JSON.stringify(addNoticeData))
-                toast.success("Notice added successfully")
-                reset();
-            }
-            else {
-                toast.error(response.data.message)
-            }
-        } catch (error) {
-            toast.error(error)
-        }
-    }
-
-    // Fetching all the notices from the database
-    const fetchNoticeData = async () => {
+    const fetchNotices = async () => {
+        setLoading(true);
         try {
             const response = await axios.get('https://college-management-system-s6xa.onrender.com/Notice/NoticeList');
             if (Array.isArray(response.data)) {
-                const formattedNotices = response.data.map((notice) => ({
-                    _id: notice._id,
-                    text: {
-                        noticeTitle: notice.title,
-                        noticeDetail: notice.details,
-                        noticeDate: notice.date ? new Date(notice.date.$date || notice.date).toLocaleDateString() : 'No date',
-                    }
-                }));
-                setNoticeTodo(formattedNotices);
-                
+                setNotices(response.data);
             } else {
-                toast.info(response.data.message);
+                toast.info(response.data.message || "No notices found");
             }
         } catch (error) {
-            toast.error(error);
-        } 
+            toast.error("Failed to fetch notices");
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    // Delete notice from the queue via id
-    const deleteNoticeTodo = async (id) => {
+    const onSubmit = async (data) => {
         try {
-            const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Notice/Notice/${id}`)
-            if (response.status === 200) {
-                setNoticeTodo((notices) => notices.filter(notice => notice._id !== id))
-                toast.success("Notice deleted successfully")
+            const response = await axios.post("https://college-management-system-s6xa.onrender.com/Notice/NoticeCreate", data);
+            if (response.data) {
+                toast.success("Notice added successfully");
+                reset();
+                setIsFormOpen(false);
+                fetchNotices();
+            } else {
+                toast.error(response.data.message || "Failed to add notice");
             }
         } catch (error) {
-            toast.error(error)
+            toast.error("Error creating notice");
+            console.error(error);
+        }
+    };
+
+    const deleteNotice = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this notice?")) return;
+        try {
+            const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Notice/Notice/${id}`);
+            if (response.status === 200) {
+                setNotices(notices.filter(n => n._id !== id));
+                toast.success("Notice deleted successfully");
+            }
+        } catch (error) {
+            toast.error("Failed to delete notice");
+            console.error(error);
         }
     };
 
     useEffect(() => {
-      
-        fetchNoticeData();
+        fetchNotices();
     }, []);
 
-
-
     return (
-        <>
-            <div className=' w-full '>
-                <form onSubmit={handleSubmit(handleSubmitNotice, onError)} className={`modal backdrop-blur-3xl text-black flex flex-col justify-around  border-black-900 shadow-2xl shadow-black-900 mx-auto w-96 bg-white  md:px-0  mt-14`}>
-                    <div className={`${isModalOpen ? "hidden" : "block"} px-10  border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
-                        <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
+        <div className="min-h-screen bg-gray-900 text-white p-6">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-100">Notice Board</h1>
+                    <button
+                        onClick={() => setIsFormOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors font-medium"
+                    >
+                        <Plus className="w-5 h-5" />
+                        Add New Notice
+                    </button>
+                </div>
 
-                        <label htmlFor="title" className='text-xl'>Title</label>
-                        <input
-                            {...register("title", { required: "Title is required", minLength: { value: 2, message: "Minimum 2 character is required" } })}
-                            type="text"
-                            name='title'
-                            id='title'
-                            placeholder='Notice title*'
-                            className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`}
-                        />
+                {/* Form Modal */}
+                {isFormOpen && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+                        <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg border border-gray-700 p-6 relative animate-in fade-in zoom-in duration-200">
+                            <button
+                                onClick={() => setIsFormOpen(false)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
 
-                        <label htmlFor="noticeDetail" className='text-xl'>Detail</label>
-                        <input
-                            {...register('details', { required: "Detail is missing", minLength: { value: 2, message: "Minimum 2 character is required" } })}
-                            type="text"
-                            name='details'
-                            id='details'
-                            placeholder='Notice detail*'
-                            className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`}
-                        />
+                            <h2 className="text-2xl font-bold mb-6 text-gray-100">Create Notice</h2>
 
-                        <label htmlFor="date" className='text-xl'>Date</label>
-                        <input
-                            {...register('date', { required: "Notice Date is required" })}
-                            type="date"
-                            name='date'
-                            id='date'
-                            className={`rounded-lg font-5xl outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`}
-                        />
+                            <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Title</label>
+                                    <div className="relative">
+                                        <Type className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                        <input
+                                            {...register("title", { required: "Title is required", minLength: { value: 2, message: "Min 2 chars" } })}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                            placeholder="Enter notice title"
+                                        />
+                                    </div>
+                                </div>
 
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-5 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>
-                            <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                        </svg>
-                        <button type='submit' className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-6 mb-3 cursor-pointer`} >Create Notice</button>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Details</label>
+                                    <div className="relative">
+                                        <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-500" />
+                                        <textarea
+                                            {...register("details", { required: "Details are required", minLength: { value: 5, message: "Min 5 chars" } })}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all min-h-[100px]"
+                                            placeholder="Enter notice details..."
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-400 mb-1">Date</label>
+                                    <div className="relative">
+                                        <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" />
+                                        <input
+                                            type="date"
+                                            {...register("date", { required: "Date is required" })}
+                                            className="w-full bg-gray-900 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all [color-scheme:dark]"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors mt-4"
+                                >
+                                    Publish Notice
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                </form>
+                )}
 
-                <h1  className={`${isModalOpen ? "block" : "hidden"} text-5xl font-bold text-center mb-10 `}><u>Notices</u></h1>
-                {isModalOpen && (<div className='bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden'>
-                    <table className={`min-w-full divide-y divide-gray-200 dark:divide-gray-700`}>
-                        <thead className='bg-gray-50 dark:bg-gray-700'>
-                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>S.No</td>
-                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Title</td>
-                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Detail</td>
-                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'> Date</td>
-                            <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Action</td>
-                        </thead>
-                        <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                            {
-                                noticeTodo.map((noticeTodos, index) => (
-                                    <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={noticeTodos.id}>
-                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
-                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{noticeTodos.text.noticeTitle}</td>
-                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{noticeTodos.text.noticeDetail}.</td>
-                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{noticeTodos.text.noticeDate}</td>
-                                        <td className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'> <Trash2 color="#ff0000" className="cursor-pointer" onClick={() => deleteNoticeTodo(noticeTodos._id)} /></td>
+                {/* Notices List */}
+                <div className="bg-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-xl">
+                    {loading ? (
+                        <div className="flex justify-center items-center h-64">
+                            <ColorRing
+                                visible={true}
+                                height="80"
+                                width="80"
+                                ariaLabel="loading"
+                                colors={['#60a5fa', '#34d399', '#f472b6', '#a78bfa', '#fbbf24']}
+                            />
+                        </div>
+                    ) : notices.length === 0 ? (
+                        <div className="text-center py-12 text-gray-400">
+                            <p className="text-lg">No notices found.</p>
+                            <p className="text-sm">Click "Add New Notice" to create one.</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-900/50 border-b border-gray-700">
+                                    <tr>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Title</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Details</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Actions</th>
                                     </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
-                </div>)}
-                <button className={`px-3 py-2 bg-purple-500 rounded-lg mt-10 mb-5 relative left-96 mx-36 right-20 ${isModalOpen ? "block" : "hidden"}`} onClick={() => setIsModalOpen(false)}>Add Notices</button>
+                                </thead>
+                                <tbody className="divide-y divide-gray-700">
+                                    {notices.map((notice) => (
+                                        <tr key={notice._id} className="hover:bg-gray-700/50 transition-colors group">
+                                            <td className="px-6 py-4 font-medium text-gray-200">{notice.title}</td>
+                                            <td className="px-6 py-4 text-gray-400 max-w-md truncate" title={notice.details}>
+                                                {notice.details}
+                                            </td>
+                                            <td className="px-6 py-4 text-gray-400 whitespace-nowrap">
+                                                {notice.date ? new Date(notice.date).toLocaleDateString() : "N/A"}
+                                            </td>
+                                            <td className="px-6 py-4 text-right">
+                                                <button
+                                                    onClick={() => deleteNotice(notice._id)}
+                                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                                    title="Delete Notice"
+                                                >
+                                                    <Trash2 className="w-5 h-5" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
             </div>
-        </>
-    )
-}
+        </div>
+    );
+};
 
-export default Notice
+export default Notice;
 
 

@@ -1,140 +1,136 @@
-import React, { useState } from 'react'
-import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom'
-import { useAuth } from '../../Context/authProvider'
-import fees from '../../assets/invoice.png'
+import React, { useState } from 'react';
+import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../Context/authProvider';
 
 const AdminDashBoard = () => {
-    const [menu, setMenu] = useState(false)
-    const navigate = useNavigate()
-    const { authUser, setAuthUser, logOut } = useAuth()
-    const { open, setOpen } = useState(true)
-    const location = useLocation()
+    const [menu, setMenu] = useState(false);
+    const navigate = useNavigate();
+    const { logOut } = useAuth();
+    const location = useLocation();
 
-    const handleMenuBar = () => {
-        setMenu(!menu)
-        // setOpen(!open)
-    }
+    // Toggle Mobile Menu
+    const handleMenuBar = () => setMenu(!menu);
 
+    // Logout Handler
     const handleLogout = async () => {
         try {
-            await logOut()
-            navigate('/dashboard')
+            await logOut();
+            navigate('/dashboard');
         } catch (error) {
-            console.error("Logout failed: ", error)
+            console.error("Logout failed: ", error);
         }
-    }
+    };
 
-    const linkStyle = (path) => (
-        location.pathname === path ? "bg-gray-700 text-white" : "text-gray-200"
-    )
+    // Navigation Data Configuration
+    // Add new sidebar items here to automatically render them
+    const navItems = [
+        { name: 'Home', path: '/admin/home', icon: <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /> },
+        { name: 'Courses', path: '/admin/courses', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" /> },
+        { name: 'Subjects', path: '/admin/subjects', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /> },
+        { name: 'Teachers', path: '/admin/teachers', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /> },
+        { name: 'Students', path: '/admin/adminStudent', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /> },
+        { name: 'Notices', path: '/admin/notices', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" /> },
+        { name: 'Profile', path: '/admin/profile', icon: <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /> },
+    ];
 
     return (
-        <>
-            {/* Sidebar and main layout */}
-            <div className="flex h-screen bg-gray-900 text-white w-screen">
-                {/* Sidebar toggle button for small screens */}
-                {menu ? <button
-                    onClick={() => handleMenuBar()}
-                    className="md:hidden absolute mt-3 -mx-2 p-4 z-20 text-white hover:text-gray-400 focus:outline-none"
-                >
-                    {/* <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M 7 4 C 6h16M4 12h16M4 18h16" />
-                    </svg> */}
-                    <span className='mx-3 text-gray-300'>X</span>
-                </button> : <button
-                    onClick={handleMenuBar}
-                    className="md:hidden absolute mt-3 -mx-2 p-4 z-20 text-white hover:text-gray-400 focus:outline-none"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
-                </button>}
+        <div className="flex h-screen w-full bg-gray-900 overflow-hidden">
+            
+            {/* --- Overlay for Mobile when menu is open --- */}
+            {menu && (
+                <div 
+                    className="fixed inset-0 bg-black/50 z-20 md:hidden backdrop-blur-sm"
+                    onClick={() => setMenu(false)}
+                />
+            )}
 
-                {/* Sidebar */}
-                <div className={`bg-gray-800 shadow-lg md:relative bg-blend-saturation absolute z-10  transition-transform duration-300 transform ${menu ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 w-full md:w-64 h-full flex-shrink-0`}>
-                    <div className="flex flex-col h-full">
-                        <div className="p-6 text-center text-xl font-semibold text-gray-100 border-b border-gray-700">
-                            Admin Dashboard
-                        </div>
-                        <div className="flex-grow scroll-smooth overflow-y-auto mt-8">
-                            <ul  onClick={() => setMenu(false)}>
-                                <li className="mb-4">
-                                    <Link to="/admin/home" className={`flex items-center px-6 py-3 hover:bg-gray-700 ${linkStyle('/admin/home')}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 mr-4" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+            {/* --- Sidebar --- */}
+            <aside className={`
+                fixed md:static inset-y-0 left-0 z-30
+                w-72 bg-gradient-to-b from-slate-900 via-gray-900 to-slate-900
+                border-r border-gray-700/50 shadow-2xl
+                transition-transform duration-300 ease-in-out
+                ${menu ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            `}>
+                
+                {/* Logo / Header */}
+                <div className="h-20 flex items-center justify-center border-b border-gray-700/50 bg-white/5 backdrop-blur-md">
+                    <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent tracking-wide">
+                        ADMIN PANEL
+                    </h1>
+                    {/* Close button Mobile */}
+                    <button 
+                        onClick={() => setMenu(false)} 
+                        className="md:hidden absolute right-4 text-gray-400 hover:text-white"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
 
-                                        Home
-                                    </Link>
-                                </li>
-                                <li className="mb-4">
-                                    <Link to="/admin/courses" className={`flex items-center px-6 py-3 hover:bg-gray-700 ${linkStyle('/admin/courses')}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 3.75V16.5L12 14.25 7.5 16.5V3.75m9 0H18A2.25 2.25 0 0 1 20.25 6v12A2.25 2.25 0 0 1 18 20.25H6A2.25 2.25 0 0 1 3.75 18V6A2.25 2.25 0 0 1 6 3.75h1.5m9 0h-9" />
-                                        </svg>
-                                        Courses
-                                    </Link>
-                                </li>
-                                <li className="mb-4">
-                                    {/* <Link to="/admin/subjects" className={`flex items-center px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white ${linkStyle('/admin/adminStudent')}`}> */}
-                                    <Link to="/admin/subjects" className={`flex items-center px-6 py-3 hover:bg-gray-700 ${linkStyle('/admin/subjects')}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-                                        </svg>
-                                        Subjects
-                                    </Link>
-                                </li>
-                                <li className="mb-4">
-                                    <Link to="/admin/teachers" className={`flex items-center px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white ${linkStyle('/admin/teachers')}`}>
-                                        <svg className="w-5 h-5 mr-4 invert" focusable="false" aria-hidden="true" viewBox="0 0 24 24" data-testid="SupervisorAccountOutlinedIcon"><path d="M9 12c1.93 0 3.5-1.57 3.5-3.5S10.93 5 9 5 5.5 6.57 5.5 8.5 7.07 12 9 12zm0-5c.83 0 1.5.67 1.5 1.5S9.83 10 9 10s-1.5-.67-1.5-1.5S8.17 7 9 7zm.05 10H4.77c.99-.5 2.7-1 4.23-1 .11 0 .23.01.34.01.34-.73.93-1.33 1.64-1.81-.73-.13-1.42-.2-1.98-.2-2.34 0-7 1.17-7 3.5V19h7v-1.5c0-.17.02-.34.05-.5zm7.45-2.5c-1.84 0-5.5 1.01-5.5 3V19h11v-1.5c0-1.99-3.66-3-5.5-3zm1.21-1.82c.76-.43 1.29-1.24 1.29-2.18C19 9.12 17.88 8 16.5 8S14 9.12 14 10.5c0 .94.53 1.75 1.29 2.18.36.2.77.32 1.21.32s.85-.12 1.21-.32z"></path></svg>
-                                        Teachers
-                                    </Link>
-                                </li>
-                                <li className="mb-4">
-                                    <Link to="/admin/adminStudent" className={`flex items-center px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white ${linkStyle('/admin/adminStudent')}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5 mr-4">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                                        </svg>
-                                        Students
-                                    </Link>
-                                </li> 
-                               
-                                <li className="mb-4">
-                                    <Link to="/admin/notices" className={`flex items-center px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white ${linkStyle('/admin/notices')}`}>
-                                        <svg className="w-5 h-5 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={1.5}>
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-                                        </svg>
-                                        Notices
-                                    </Link>
-                                </li>
-                                <li className="mb-4">
-                                    <Link to="/admin/profile" className={`flex items-center px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white ${linkStyle('/admin/profile')}`}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-4">
-                                            <path fillRule="evenodd" d="M18.685 19.097A9.723 9.723 0 0 0 21.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 0 0 3.065 7.097A9.716 9.716 0 0 0 12 21.75a9.716 9.716 0 0 0 6.685-2.653Zm-12.54-1.285A7.486 7.486 0 0 1 12 15a7.486 7.486 0 0 1 5.855 2.812A8.224 8.224 0 0 1 12 20.25a8.224 8.224 0 0 1-5.855-2.438ZM15.75 9a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" clipRule="evenodd" />
-                                        </svg>
-                                        Profile
-                                    </Link>
-                                </li>
-                                <li className="mb-4">
-                                    <button onClick={handleLogout} className="flex items-center w-full px-6 py-3 text-gray-200 hover:bg-red-600 hover:text-white">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 mr-4">
-                                            <path fillRule="evenodd" d="M7.5 3.75A1.5 1.5 0 0 0 6 5.25v13.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5V15a.75.75 0 0 1 1.5 0v3.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V5.25a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3V9A.75.75 0 0 1 15 9V5.25a1.5 1.5 0 0 0-1.5-1.5h-6Zm10.72 4.72a.75.75 0 0 1 1.06 0l3 3a.75.75 0 0 1 0 1.06l-3 3a.75.75 0 1 1-1.06-1.06l1.72-1.72H9a.75.75 0 0 1 0-1.5h10.94l-1.72-1.72a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                                        </svg>
-                                        Logout
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
+                {/* Navigation Links */}
+                <nav className="p-4 space-y-2 overflow-y-auto h-[calc(100vh-5rem)] scrollbar-hide">
+                    {navItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Link 
+                                key={item.name}
+                                to={item.path}
+                                onClick={() => setMenu(false)}
+                                className={`
+                                    flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-300 group
+                                    ${isActive 
+                                        ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/20' 
+                                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                                    }
+                                `}
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 transition-transform group-hover:scale-110">
+                                    {item.icon}
+                                </svg>
+                                <span className="font-medium tracking-wide">{item.name}</span>
+                            </Link>
+                        )
+                    })}
+
+                    {/* Logout button */}
+                    <button 
+                        onClick={handleLogout} 
+                        className="w-full flex items-center gap-4 px-4 py-3.5 mt-8 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                        </svg>
+                        <span className="font-medium tracking-wide">Logout</span>
+                    </button>
+                </nav>
+            </aside>
+
+            {/* --- Main Content Area --- */}
+            <main className="flex-1 flex flex-col h-screen relative bg-gray-900">
+                
+                {/* Mobile Header */}
+                <header className="md:hidden flex items-center p-4 bg-slate-900 border-b border-gray-700">
+                    <button onClick={handleMenuBar} className="text-gray-300 hover:text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                    </button>
+                    <span className="ml-4 text-lg font-semibold text-white">Dashboard</span>
+                </header>
+
+                {/* Content Outlet */}
+                <div className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-900 via-slate-900 to-gray-800 p-4 md:p-8">
+                    {/* Inner container to constrain width if needed, or keep full width */}
+                    <div className="max-w-7xl mx-auto animate-fade-in-up">
+                        <Outlet />
                     </div>
                 </div>
 
-                {/* Content Area */}
-                <div className="flex-grow p-6 overflow-y-auto">
-                    <Outlet />
-                </div>
-            </div>
-        </>
-    )
-}
+            </main>
+        </div>
+    );
+};
 
-export default AdminDashBoard
-
+export default AdminDashBoard;

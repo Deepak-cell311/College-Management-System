@@ -11,9 +11,11 @@ const StudentLogin = () => {
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleOnSubmit = async (data) => {
     try {
+      setLoading(true);
       const response = await axios.post("https://college-management-system-s6xa.onrender.com/Student/StudentLogin", {
         name: data.name,
         rollNum: data.rollNum,
@@ -39,7 +41,9 @@ const StudentLogin = () => {
         toast.error(error.response.data.message);
       } else {
         toast.error("An error occurred. Please try again.");
-      }
+      } 
+    } finally {
+      setLoading(false);
     }
   };
   const handlePassword = () => {
@@ -104,7 +108,7 @@ const StudentLogin = () => {
                 className='outline-none p-4 mb-6 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50'
               />
             </div>
-            <button className='bg-cyan-500 hover:bg-cyan-700 text-white mt-5 py-4 font-bold w-full mb-1'>Login</button>
+            <button className='bg-cyan-500 hover:bg-cyan-700 text-white mt-5 py-4 font-bold w-full mb-1'>{loading ? "Logging In..." : "Login"}</button>
             <Link to="/StudentRegistration" className='text-xl italic font-light'>
               Don't have an account? <u className='font-sans'>Register yourself</u>
             </Link>

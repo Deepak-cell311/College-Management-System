@@ -13,6 +13,27 @@
   min-height: 100vh;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #cae8f0;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(0, 140, 255);
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #66a8e6;
+}
+
 .sidebar {
   transition: all 0.3s ease; 
 }

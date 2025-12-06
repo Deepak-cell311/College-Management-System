@@ -11,11 +11,13 @@ const StudentRegistration = () => {
   const navigate = useNavigate();
   const { register, handleSubmit } = useForm();
   const [course, setCourse] = useState([])
+  const [loading, setLoading] = useState(false)
 
   const handleOnSubmit = async (data) => {
     console.log(data)
 
     try {
+      setLoading(true)
       const response = await axios.post("https://college-management-system-s6xa.onrender.com/Student/StudentReg", {
         name: data.name,
         rollNum: data.rollNum,
@@ -37,6 +39,8 @@ const StudentRegistration = () => {
       } else {
         toast.error("An error occurred. Please try again.");
       }
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -133,7 +137,7 @@ const StudentRegistration = () => {
                 className='outline-none p-4 shadow-lg border-2 border-zinc-400 text-black shadow-red-500/50' />
             </div>
 
-            <button className='bg-cyan-500 hover:bg-cyan-700 text-white mt-5 mb-1 py-4 font-bold w-full'>Register</button>
+            <button className='bg-cyan-500 hover:bg-cyan-700 text-white mt-5 mb-1 py-4 font-bold w-full'>{loading ? "Registering..." : "Register"}</button>
             <Link to="/StudentLogin" className='text-xl italic font-light'>Already have an account? <u className='font-sans'>Login Here</u></Link>
           </form>
         </div>

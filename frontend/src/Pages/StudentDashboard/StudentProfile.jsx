@@ -437,7 +437,7 @@ const StudentProfile = () => {
                             </div>
                         </div>
 
-                        {/* Save Button for Edit Mode */}
+                        {/* Save button for Edit Mode */}
                         {isEditing && (
                             <div className="mt-6 flex justify-end">
                                 <button

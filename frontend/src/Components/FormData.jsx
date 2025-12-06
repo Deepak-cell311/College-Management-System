@@ -24,8 +24,6 @@ const FormData = ({ title, button, formType }) => {
     }
     const handleOnSubmitAdmin = (data) => {
         console.log(data);
-        // const path = getLinkto()
-        // navigate(path)
     }
 
     const handlePassword = () => {

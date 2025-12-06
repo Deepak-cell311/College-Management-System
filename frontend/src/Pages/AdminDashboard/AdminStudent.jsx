@@ -1,132 +1,128 @@
-import React, { useEffect, useState } from 'react'
-import { Trash2 } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
-import courseModel from "./courseModel.png"
-import { toast } from 'react-toastify'
-import axios from 'axios'
-import { format } from 'date-fns'
+import React, { useEffect, useState } from 'react';
+import { Trash2, User, BookOpen, Calendar, GraduationCap, Plus, X, PieChart, BarChart } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { format } from 'date-fns';
 import CanvasJSReact from '@canvasjs/react-charts';
-import { useForm } from 'react-hook-form'
+import { useForm } from 'react-hook-form';
+import { ColorRing } from 'react-loader-spinner';
 
 const AdminStudent = () => {
+  const CanvasJSChart = CanvasJSReact.CanvasJSChart;
+  const [activeTab, setActiveTab] = useState("details");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [marksData, setMarksData] = useState([]);
+  const [subjectTodo, setSubjectTodo] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  var CanvasJSChart = CanvasJSReact.CanvasJSChart;
-  const [activeTab, setActiveTab] = useState("details")
-  const [isModalOpen, setIsModalOpen] = useState("")
-  const [marksData, setMarksData] = useState([])
-  const [subjectTodo, setSubjectTodo] = useState([])
-
-
-  const handleTabChange = (tab) => setActiveTab(tab)
-
-  const location = useLocation()
+  const navigate = useNavigate();
+  const location = useLocation();
   const { showStudentData = {}, courseName, subjectData } = location.state || {};
 
-  const { handleSubmit, register } = useForm()
-  const onError = (errors) => {
-    Object.values(errors).forEach(
-      error => { toast.error(error.message) }
-    )
-  }
+  const { handleSubmit, register, reset } = useForm();
 
+  const onError = (errors) => {
+    Object.values(errors).forEach(error => toast.error(error.message));
+  };
+
+  // Attendance Calculations
   const showAttendence = () => {
     if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0;
-    const data = showStudentData.attendance;
-    let count = 0;
-    data.forEach((status) => {
-      if (status.status === "Present") count++;
-    });
-    return count;
+    return showStudentData.attendance.filter(status => status.status === "Present").length;
   };
 
   const absentStudentCount = () => {
     if (!showStudentData || !Array.isArray(showStudentData.attendance)) return 0;
-    const data = showStudentData.attendance;
-    let count = 0;
-    data.forEach((status) => {
-      if (status.status === "Absent") count++;
-    });
-    return count;
+    return showStudentData.attendance.filter(status => status.status === "Absent").length;
   };
 
-  const totalAttendanceCount = showAttendence()
-  const absentStudent = absentStudentCount()
-  const attendancePercentage = totalAttendanceCount > 0 ? ((totalAttendanceCount / subjectData.text.sessions) * 100).toFixed(2) + '%' : '0.00%'   // for present student
-  const absent = absentStudent > 0 ? ((absentStudent / subjectData.text.sessions) * 100).toFixed(2) + '%' : '0.00%'   // for absent student
+  const totalAttendanceCount = showAttendence();
+  const absentStudent = absentStudentCount();
+  const totalSessions = subjectData?.text?.sessions || 0;
 
-  const attendance = {
+  const attendancePercentage = totalAttendanceCount > 0 ? ((totalAttendanceCount / totalSessions) * 100).toFixed(2) : '0.00';
+  const absentPercentage = absentStudent > 0 ? ((absentStudent / totalSessions) * 100).toFixed(2) : '0.00';
+
+  const attendanceChartOptions = {
     animationEnabled: true,
-    exportEnabled: true,
     theme: "dark2",
+    backgroundColor: "transparent",
     title: {
-      text: "Attendance"
+      text: "Attendance Overview",
+      fontColor: "#e5e7eb",
+      fontFamily: "sans-serif",
+      fontWeight: "bold",
+      fontSize: 20
     },
     data: [{
-      type: "pie",
+      type: "doughnut",
+      innerRadius: "60%",
+      indexLabelFontColor: "#e5e7eb",
       indexLabel: "{label}: {y}%",
-      startAngle: -90,
+      toolTipContent: "<b>{label}</b>: {y}%",
       dataPoints: [
-        { y: parseFloat(attendancePercentage), label: "Present" },
-        { y: parseFloat(absent), label: "Absent" },
-
+        { y: parseFloat(attendancePercentage), label: "Present", color: "#3b82f6" },
+        { y: parseFloat(absentPercentage), label: "Absent", color: "#ef4444" },
       ]
     }]
-  }
+  };
 
-  const marks = {
+  const marksChartOptions = {
     animationEnabled: true,
-    exportEnabled: true,
     theme: "dark2",
+    backgroundColor: "transparent",
     title: {
-      text: "Marks"
+      text: "Performance Analysis",
+      fontColor: "#e5e7eb",
+      fontFamily: "sans-serif",
+      fontWeight: "bold",
+      fontSize: 20
     },
     data: [{
-      type: "pie",
-      indexLabel: "{label}: {y}%",
-      startAngle: -90,
+      type: "column",
+      indexLabelFontColor: "#e5e7eb",
+      indexLabel: "{y}",
+      toolTipContent: "<b>{label}</b>: {y}",
       dataPoints: marksData.map(item => ({
-        y: item.marksObtained,
-        label: item.subName
+        y: parseInt(item.marksObtained),
+        label: item.subName,
+        color: "#8b5cf6"
       }))
     }]
-  }
+  };
 
   const handleMarks = async (data) => {
     try {
-      const response = await axios.put(`http://192.168.149.125:5000/Student/UpdateExamResult/${showStudentData._id}`, {
+      const response = await axios.put(`https://college-management-system-s6xa.onrender.com/Student/UpdateExamResult/${showStudentData._id}`, {
         subName: data.subName || "Unknown",
         marksObtained: data.marksObtained || "N/A"
       });
       if (response.status === 200 && response.data.examResult) {
         setMarksData(response.data.examResult);
         toast.success("Marks added successfully");
-        setIsModalOpen(true);
-      } else {
-        toast.error("Unexpected response format");
+        setIsModalOpen(false);
+        reset();
       }
     } catch (error) {
-      console.log(error.response)
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
   const fetchMarksData = async () => {
     try {
-      const response = await axios.get(`http://192.168.149.125:5000/Student/Student/${showStudentData._id}`);
+      const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Student/Student/${showStudentData._id}`);
       if (response.data && response.data.examResult) {
         setMarksData(response.data.examResult);
-      } else {
-        toast.info("No exam results found for this student");
       }
     } catch (error) {
-      console.log(error.response)
-      toast.error(error.response?.data?.message || "An error occurred while fetching exam results");
+      toast.error(error.response?.data?.message || "Failed to fetch exam results");
     }
   };
 
   const fetchSubjectData = async () => {
     try {
-      const response = await axios.get('http://192.168.149.125:5000/Subject/AllSubjects');
+      const response = await axios.get('https://college-management-system-s6xa.onrender.com/Subject/AllSubjects');
       if (Array.isArray(response.data)) {
         const formattedSubjects = response.data.map((subject) => ({
           id: subject._id,
@@ -138,202 +134,214 @@ const AdminStudent = () => {
           },
         }));
         setSubjectTodo(formattedSubjects);
-      } else {
-        toast.info(response.data.message);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred while fetching subjects");
+      toast.error(error.response?.data?.message || "Failed to fetch subjects");
     }
   };
 
   const deleteAttendance = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this record?")) return;
     try {
+      // Note: The original code was deleting a Subject, which seems wrong for deleting attendance.
+      // Assuming this is intended to delete a subject from the list, but keeping original logic for now with better error handling.
       const response = await axios.delete(`https://college-management-system-s6xa.onrender.com/Subject/Subject/${id}`);
       if (response.status === 200) {
-        setSubjectTodo((subjects) => subjects.filter((subject) => subject._id !== id));
-        toast.success('Subject deleted successfully');
+        setSubjectTodo((subjects) => subjects.filter((subject) => subject.id !== id));
+        toast.success('Record deleted successfully');
       }
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Failed to delete course';
-      toast.error(`Error: ${errorMsg}`);
-      console.error("Error deleting subject:", error);
+      toast.error(error.response?.data?.message || 'Failed to delete record');
     }
   };
 
-  console.log("Subject Id: ", subjectTodo)
-
   useEffect(() => {
-    fetchMarksData();
-    fetchSubjectData()
-  }, []);
+    if (showStudentData._id) {
+      fetchMarksData();
+      fetchSubjectData();
+    }
+  }, [showStudentData._id]);
+
+  if (!showStudentData._id) return <div className="min-h-screen bg-gray-900 text-white flex justify-center items-center">No student selected</div>;
 
   return (
-    <>
-      <div className='w-full '>
-        <nav className='fixed top-0 w-full left-0 mx-64 right-20 z-10 bg-gray-900 rounded-lg shadow-lg'>
-          <ul className='flex  py-5'>
-            {['details', 'attendence', 'marks'].map((tab) => (
-              <li
-                key={tab}
-                onClick={() => handleTabChange(tab)}
-                className={`relative mx-10 cursor-pointer flex flex-col text-lg font-semibold transition-all duration-300 
-                    ${activeTab === tab ? 'text-zinc-400' : 'text-gray-600 hover:text-blue-400'}`}
-              >
-                <span className={`absolute bottom-0 left-0 w-full h-1 transition-all duration-300 
-                         ${activeTab === tab ? 'bg-blue-500' : 'bg-transparent'}`}></span>
-                {tab.toUpperCase()}
-                <div className={`absolute transition-transform duration-300 ${activeTab === tab ? 'scale-100' : 'scale-0'}`}>
-                  <div className='bg-blue-500 rounded-full w-2 h-2 animate-ping mx-7'></div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </nav>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-100">{showStudentData.name}</h1>
+            <p className="text-gray-400 mt-1">Roll Number: {showStudentData.rollNum} • Course: {courseName}</p>
+          </div>
+        </div>
 
-        <div className='mx-5'>
-          {activeTab === "details" && showStudentData && (<>
-            <h1 className='text-5xl bold text-center mt-20 font-extrabold mb-5'><u>Students Detail</u></h1>
-            <div className=''>
-              <table className={`min-w-full divide-y divide-gray-200 dark:divide-gray-700`}>
-                <thead className='text-xl text-gray-900  bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
-                  <tr>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Student Name</th>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Roll Number</th>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Course</th>
-                  </tr>
-                </thead>
-                <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                  <tr className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200`}  >
-                    <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{showStudentData.name || "N/A"}</th>
-                    <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{showStudentData.rollNum || "N/A"}</th>
-                    <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{courseName}</th>
-                  </tr>
-                </tbody>
-              </table>
-              <div className='flex mt-10 '>
-                <div className='w-3/4 border-2'>
-                  <CanvasJSChart options={attendance} />
-                </div>
-                <div className='mx-3 border-2 w-3/4'>
-                  <CanvasJSChart options={marks}
-                  />
-                </div>
+        {/* Tabs */}
+        <div className="flex space-x-1 bg-gray-800 p-1 rounded-xl mb-8 w-fit overflow-x-auto">
+          {[
+            { id: 'details', icon: User, label: 'Details' },
+            { id: 'attendence', icon: Calendar, label: 'Attendance' },
+            { id: 'marks', icon: GraduationCap, label: 'Marks' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap
+                ${activeTab === tab.id
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+            >
+              <tab.icon className="w-4 h-4" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
+        <div className="space-y-6">
+          {activeTab === "details" && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+                <CanvasJSChart options={attendanceChartOptions} />
+              </div>
+              <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+                <CanvasJSChart options={marksChartOptions} />
               </div>
             </div>
-          </>)}
-          {activeTab === "attendence" && (<>
-            <h1 className='text-5xl text-center font-extrabold mt-20 mb-10'><u>Attendance</u></h1>
-            <table className={`min-w-full divide-y divide-gray-200 dark:divide-gray-700`}>
-              <thead className='bg-gray-50 dark:bg-gray-700'>
-                <tr>
-                  <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>S.No</th>
-                  <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Subject</th>
-                  <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Present</th>
-                  <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Total Sessions</th>
-                  <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Attendence Percentage</th>
-                  <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Action</th>
-                </tr>
-              </thead>
-              <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                {subjectTodo.map((subject, index) => (
-                  <tr className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200`} key={subject.id}>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{subject.text.subjectName || "N/A"}</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{totalAttendanceCount}</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'> {subject.text.subjectSessions}</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{totalAttendanceCount > 0 ? ((totalAttendanceCount / subject.text.subjectSessions) * 100).toFixed(2) + '%' : '0.00%' || "N/A"}</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200 flex'>
-                      <button className="bg-red-600 hover:bg-red-500 text-white  mx-2 py-2 px-3 rounded-lg">
-                        <Trash2 className="w-5 h-5" onClick={() => deleteAttendance(subject.id)} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <span className='text-xl italic mt-5'>Overall Attendance Percentage: {attendancePercentage}</span>
+          )}
 
-            <div className='mt-5 mx-10'>
-              <h1 className='text-3xl text-center mb-2 font-bold'><u>Attendance Detail</u></h1>
-              <table className={`min-w-full divide-y divide-gray-200 dark:divide-gray-700`}>
-                <thead className='tbg-gray-50 dark:bg-gray-700'>
-                  <tr>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>S.No</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>Date</td>
-                    <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>Subject Name</td>
-                    <td className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Status</td>
-                  </tr>
-                </thead>
-                <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                  {
-                    Array.isArray(showStudentData?.attendance) ? (
-                      showStudentData.attendance.slice().reverse().map((attendance, index) => (
-                        <tr key={attendance._id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200`}  >
-                          <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
-                          <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{format(new Date(attendance.date), 'MMMM dd, yyyy, h:mm a')}</td>
-                          <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{attendance.subName}</td>
-                          <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{attendance.status}</td>
+          {activeTab === "attendence" && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard icon={<Calendar className="w-8 h-8 text-blue-400" />} label="Total Sessions" value={totalSessions} color="bg-blue-500/10" />
+                <StatCard icon={<User className="w-8 h-8 text-green-400" />} label="Present" value={totalAttendanceCount} color="bg-green-500/10" />
+                <StatCard icon={<User className="w-8 h-8 text-red-400" />} label="Absent" value={absentStudent} color="bg-red-500/10" />
+              </div>
+
+              <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+                <div className="p-4 border-b border-gray-700">
+                  <h2 className="text-lg font-semibold">Attendance History</h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-900/50 border-b border-gray-700">
+                      <tr>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Subject</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-700">
+                      {Array.isArray(showStudentData?.attendance) && showStudentData.attendance.length > 0 ? (
+                        showStudentData.attendance.slice().reverse().map((attendance, index) => (
+                          <tr key={attendance._id || index} className="hover:bg-gray-700/50 transition-colors">
+                            <td className="px-6 py-4 text-gray-300">{format(new Date(attendance.date), 'MMMM dd, yyyy, h:mm a')}</td>
+                            <td className="px-6 py-4 text-gray-300">{attendance.subName}</td>
+                            <td className="px-6 py-4">
+                              <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                ${attendance.status === 'Present' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                                {attendance.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="3" className="px-6 py-8 text-center text-gray-500">No attendance records found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "marks" && (
+            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+              <div className="p-4 border-b border-gray-700 flex justify-between items-center">
+                <h2 className="text-lg font-semibold">Exam Results</h2>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> Add Marks
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-gray-900/50 border-b border-gray-700">
+                    <tr>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">S.No</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Subject Name</th>
+                      <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Marks Obtained</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-700">
+                    {marksData.length > 0 ? (
+                      marksData.map((marks, index) => (
+                        <tr key={index} className="hover:bg-gray-700/50 transition-colors">
+                          <td className="px-6 py-4 text-gray-300">{index + 1}</td>
+                          <td className="px-6 py-4 text-gray-300">{marks.subName}</td>
+                          <td className="px-6 py-4 text-gray-300 font-medium">{marks.marksObtained}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan="2" className="text-center">No attendance records available.</td>
+                        <td colSpan="3" className="px-6 py-8 text-center text-gray-500">No marks records found</td>
                       </tr>
-                    )
-                  }
-                </tbody>
-              </table>
-            </div>
-          </>)}
-
-          {activeTab === "marks" && (
-            <>
-              <div className={`modal backdrop-blur-3xl  flex flex-col justify-around  border-black-900  mx-auto w-96 md:px-0 `}>
-                <h1 className='text-5xl text-center font-extrabold mt-20 mb-5'><u>Marks</u></h1>
-                <form onSubmit={handleSubmit(handleMarks, onError)} className={`${isModalOpen ? "hidden" : "block"} px-10 text-black bg-white border-2 border-gray-300 flex flex-col justify-center mx-auto `}>
-                  <img className={`mx-auto h-full object-cover `} src={courseModel} alt="add course data" />
-                  <label htmlFor="subName" className='text-xl'>Subject Name</label>
-                  <input type="text" placeholder='Subject Name' {...register("subName", { required: "Subject Name is required", minLength: { value: 2, message: "Minimum 2 character is required" } })} className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
-                  <label htmlFor="marksObtained" className='text-xl'>Marks</label>
-                  <input type="number" {...register("marksObtained", { required: "Marks is required" })} name='marksObtained' id='marksObtained' placeholder='Marks' className={`rounded-lg font-5xl mb-5 outline-none border-2 border-gray-900 py-3 px-4 ${isModalOpen ? "hidden" : "block"}`} />
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6 absolute right-0 top-40 cursor-pointer mx-5" onClick={() => setIsModalOpen(true)}>
-                    <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clipRule="evenodd" />
-                  </svg>
-                  <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 cursor-pointer`}>Create Marks</button>
-                </form>
-              </div>
-
-              <div className={`${isModalOpen ? "block" : "hidden"} text-black  mx-5 mt-5 `}>
-                <table className={`w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 `}>
-                  <thead className='bg-gray-50 dark:bg-gray-700'>
-                    <tr>
-                      <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>S.No</td>
-                      <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>Subject Name</td>
-                      <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>Marks</td>
-                    </tr>
-                  </thead>
-                  <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                    {marksData.map((marks, index) => (
-                      <tr key={index} className={`hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-200`}  >
-                        <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{index + 1 || "N/A"}</td>
-                        <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{marks.subName || "Unknown"}</td>
-                        <td className='px-6 py-4 text-sm text-gray-900 dark:text-gray-200'>{marks.marksObtained || "Unknown"}</td>
-                      </tr>
-                    ))
-                    }
+                    )}
                   </tbody>
                 </table>
-                <button className={`bg-cyan-500 hover:bg-cyan-600 p-3 rounded-lg mt-3 mb-3 absolute bottom-0 mx-96`} onClick={() => setIsModalOpen(!isModalOpen)}>Add Marks</button>
               </div>
-            </>
+            </div>
           )}
         </div>
-      </div >
-    </>
-  )
-}
-export default AdminStudent
 
+        {/* Add Marks Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4">
+            <div className="bg-gray-800 rounded-xl w-full max-w-md border border-gray-700 p-6 relative">
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <X className="w-6 h-6" />
+              </button>
+              <h2 className="text-xl font-bold mb-6">Add Exam Marks</h2>
+              <form onSubmit={handleSubmit(handleMarks, onError)} className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-400">Subject Name</label>
+                  <input
+                    {...register("subName", { required: "Subject Name is required", minLength: { value: 2, message: "Minimum 2 characters required" } })}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500 text-white"
+                    placeholder="e.g. Mathematics"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-400">Marks Obtained</label>
+                  <input
+                    type="number"
+                    {...register("marksObtained", { required: "Marks is required" })}
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 outline-none focus:border-blue-500 text-white"
+                    placeholder="e.g. 85"
+                  />
+                </div>
+                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors">
+                  Save Marks
+                </button>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
+const StatCard = ({ icon, label, value, color }) => (
+  <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg hover:-translate-y-1 transition-transform duration-300">
+    <div className="flex items-center justify-between mb-4">
+      <div className={`p-3 rounded-xl ${color}`}>{icon}</div>
+      <span className="text-2xl font-bold text-white">{value || 0}</span>
+    </div>
+    <p className="text-gray-400 font-medium">{label}</p>
+  </div>
+);
 
+export default AdminStudent;

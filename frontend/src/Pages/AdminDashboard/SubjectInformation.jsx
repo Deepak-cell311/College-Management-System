@@ -1,144 +1,204 @@
-import React, { useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import student from "../../assets/student.png"
-import { toast } from 'react-toastify'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Users, BookOpen, Calendar, CheckCircle, ArrowLeft } from 'lucide-react';
+import { toast } from 'react-toastify';
+import axios from 'axios';
+import { ColorRing } from 'react-loader-spinner';
 
 const SubjectInformation = () => {
-  const [activeTab, setActiveTab] = useState("details")
-  const [studentTodo, setStudentTodo] = useState([])
+  const [activeTab, setActiveTab] = useState("details");
+  const [studentTodo, setStudentTodo] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { courseId, courseName, subjectTodo } = location.state || {}
-  const handleTabChange = (tab) => setActiveTab(tab)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { courseId, courseName, subjectTodo } = location.state || {};
 
-  const handleStudentRoute = (studentTodo) => {
-    navigate('/admin/students', { state: { courseId, courseName, studentTodo, showStudentData: studentTodo, attendance, subjectData: subjectTodo } })
-  }
+  const handleTabChange = (tab) => setActiveTab(tab);
 
+  const handleStudentRoute = (student) => {
+    navigate('/admin/students', {
+      state: {
+        courseId,
+        courseName,
+        studentTodo: student,
+        showStudentData: student,
+        subjectData: subjectTodo
+      }
+    });
+  };
 
-  const { attendance } = location.state || {}
-  const handleAttendence = (student) => {
-    navigate("/admin/subjectInformation/attendence", { state: { courseId, showSubjectData: subjectTodo, studentId: student._id } })
-  }
-  console.log("subjectTodo: ", subjectTodo)
+  const handleAttendance = (student) => {
+    navigate("/admin/subjectInformation/attendence", {
+      state: {
+        courseId,
+        showSubjectData: subjectTodo,
+        studentId: student._id
+      }
+    });
+  };
 
-  // Fetch all the students from the backend
-  const fetchAllStudent = async (data) => {
+  const fetchAllStudent = async () => {
+    setLoading(true);
     try {
-
       // Fetch the student detail using the API call
-      const response = await axios.get(`http://192.168.149.125:5000/Student/ClassStudents/${courseId}`);
-      console.log("student response: ", response.data)
+      // Note: Using courseId to fetch students assuming all students in course take the subject
+      const response = await axios.get(`https://college-management-system-s6xa.onrender.com/Student/ClassStudents/${courseId}`);
+
       if (Array.isArray(response.data)) {
         const formattedData = response.data.map((student) => ({
           _id: student._id || "N/A",
           name: student.name || "Unknown",
           rollNum: student.rollNum || "N/A",
           attendance: student.attendance || "N/A"
-        }))
-        // console.log(formattedData)
+        }));
         setStudentTodo(formattedData);
       } else {
-        toast.error("Failed to fetch subjects.");
+        toast.error("Failed to fetch students.");
       }
     } catch (error) {
-      console.log(error)
-      toast.error(error.response?.data?.message || "An error occurred while fetching subjects.");
+      console.error(error);
+      toast.error(error.response?.data?.message || "An error occurred while fetching students.");
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAllStudent()
-  }, [])
+    if (courseId) fetchAllStudent();
+  }, [courseId]);
+
+  if (!subjectTodo) return <div className="min-h-screen bg-gray-900 text-white flex justify-center items-center">No subject selected</div>;
 
   return (
-    <>
-      <div className=' w-full'>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-gray-400 hover:text-white mb-6 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" /> Back to Subjects
+        </button>
 
-        <nav className='fixed top-0 w-full left-0 mx-64 right-20 z-10 bg-gray-900 rounded-lg shadow-lg'>
-          <ul className='flex  py-5'>
-            {['details', 'students'].map((tab) => (
-              <li
-                key={tab}
-                onClick={() => handleTabChange(tab)}
-                className={`relative mx-10 cursor-pointer flex flex-col text-lg font-semibold transition-all duration-300 
-                    ${activeTab === tab ? 'text-zinc-400' : 'text-gray-600 hover:text-blue-400'}`}
-              >
-                <span className={`absolute bottom-0 left-0 w-full h-1 transition-all duration-300 
-                         ${activeTab === tab ? 'bg-blue-500' : 'bg-transparent'}`}></span>
-                {tab.toUpperCase()}
-                <div className={`absolute transition-transform duration-300 ${activeTab === tab ? 'scale-100' : 'scale-0'}`}>
-                  <div className='bg-blue-500 rounded-full w-2 h-2 animate-ping mx-7'></div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <h1 className="text-3xl font-bold text-gray-100 mb-2">{subjectTodo?.text?.subjectName || subjectTodo?.subName}</h1>
+        <p className="text-gray-400 mb-8">Course: {courseName}</p>
 
-        <div>
-          {activeTab === "details" && (
-            <div className=" w-full flex flex-wrap md:flex-nowrap md:flex-col h-auto text-3xl mt-20 mb-10">
-              <span className='tracking-wide mb-4 mt-10 text-center text-5xl'>Course: {courseName}</span>
-              <div className='flex w-full flex-wrap md:flex-nowrap justify-center'>
+        {/* Tabs */}
+        <div className="flex space-x-1 bg-gray-800 p-1 rounded-xl mb-8 w-fit">
+          {['details', 'students'].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleTabChange(tab)}
+              className={`flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-medium transition-all capitalize
+                ${activeTab === tab
+                  ? 'bg-blue-600 text-white shadow-lg'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-700'}`}
+            >
+              {tab === 'details' && <BookOpen className="w-4 h-4" />}
+              {tab === 'students' && <Users className="w-4 h-4" />}
+              {tab}
+            </button>
+          ))}
+        </div>
 
-               
-                <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
-                    <img className='mx-auto my-4 w-20 h-20' src={student} alt="fee collection" />
-                    <span>Total Students</span>
-                    <span className='text-2xl font-bold'>{subjectTodo?.text?.subName}</span>
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <ColorRing visible={true} height="80" width="80" ariaLabel="loading" colors={['#60a5fa', '#34d399', '#f472b6', '#a78bfa', '#fbbf24']} />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {activeTab === "details" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <StatCard
+                  icon={<BookOpen className="w-8 h-8 text-blue-400" />}
+                  label="Subject Name"
+                  value={subjectTodo?.text?.subjectName || subjectTodo?.subName}
+                  color="bg-blue-500/10"
+                />
+                <StatCard
+                  icon={<BookOpen className="w-8 h-8 text-purple-400" />}
+                  label="Subject Code"
+                  value={subjectTodo?.text?.subjectCode || subjectTodo?.subCode}
+                  color="bg-purple-500/10"
+                />
+                <StatCard
+                  icon={<Users className="w-8 h-8 text-green-400" />}
+                  label="Total Students"
+                  value={studentTodo.length}
+                  color="bg-green-500/10"
+                />
+              </div>
+            )}
+
+            {activeTab === "students" && (
+              <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
+                <div className="p-4 border-b border-gray-700">
+                  <h2 className="text-lg font-semibold flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-400" />
+                    Enrolled Students
+                  </h2>
                 </div>
-                
-                <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
-                    <img className='mx-auto my-4 w-20 h-20' src={student} alt="fee collection" />
-                    <span>Total Students</span>
-                    <span className='text-2xl font-bold'>{subjectTodo?.text?.subCode}</span>
-                </div>
-               
-                <div className='box-1 h-64 mx-5 my-2 mt-20 md:h-60 md:w-1/2 md:m-5 flex flex-col items-center border-2 border-gray-600 shadow-lg shadow-black px-10 md:px-0 bg-gray-800 rounded-3xl transition-transform transform hover:scale-105'>
-                    <img className='mx-auto my-4 w-20 h-20' src={student} alt="fee collection" />
-                    <span>Total Students</span>
-                    <span className='text-2xl font-bold'>{studentTodo.length}</span>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead className="bg-gray-900/50 border-b border-gray-700">
+                      <tr>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">S.No</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Student Name</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Roll Number</th>
+                        <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-700">
+                      {studentTodo.length > 0 ? (
+                        studentTodo.map((student, index) => (
+                          <tr key={index} className="hover:bg-gray-700/50 transition-colors">
+                            <td className="px-6 py-4 text-gray-300">{index + 1}</td>
+                            <td className="px-6 py-4 text-gray-300 font-medium">{student.name}</td>
+                            <td className="px-6 py-4 text-gray-300 font-mono text-sm">{student.rollNum}</td>
+                            <td className="px-6 py-4">
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleStudentRoute(student)}
+                                  className="px-3 py-1.5 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 rounded-lg text-sm font-medium transition-colors"
+                                >
+                                  View
+                                </button>
+                                <button
+                                  onClick={() => handleAttendance(student)}
+                                  className="px-3 py-1.5 bg-green-500/10 text-green-400 hover:bg-green-500/20 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                                >
+                                  <CheckCircle className="w-3 h-3" />
+                                  Attendance
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="4" className="px-6 py-8 text-center text-gray-500">No students found</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
-          {activeTab === "students" && (
-            <div className=' flex flex-wrap md:flex-nowrap md:flex-col h-auto mx-10 mt-20 mb-10'>
-              <h1 className='tracking-wide mb-4 mt-10 text-center text-5xl font-bold'><u>Student List</u> </h1>
-              <table className={`min-w-full divide-y divide-gray-200 dark:divide-gray-700 `}>
-                <thead className='bg-gray-50 dark:bg-gray-700'>
-                  <tr>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>S.No</th>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Student Name</th>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Roll number</th>
-                    <th scope="col" className='px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'>Action</th>
-                  </tr>
-                </thead>
-                <tbody className='bg-white divide-y divide-gray-200 dark:divide-gray-700 dark:bg-gray-800'>
-                  {studentTodo.map((student, index) => (
-                    <tr className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`} key={index} >
-                      <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{index + 1}</th>
-                      <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{student.name}</th>
-                      <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>{student.rollNum}</th>
-                      <th className='px-6 py-4 whitespace-nowrap text-left text-sm text-gray-900 dark:text-gray-200'>
-                        <div className='-mx-5'>
-                          <button className={`bg-cyan-500 hover:bg-cyan-600 px-3 py-2  rounded-lg cursor-pointer`} onClick={() => { handleStudentRoute(student) }}>View</button>
-                          <button className={`bg-yellow-600 hover:bg-yellow-700 px-3 py-2 mx-3 rounded-lg cursor-pointer`} onClick={() => handleAttendence(student)}>Take Attendence</button>
-                        </div>
-                      </th>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </div >
-    </>
-  )
-}
+const StatCard = ({ icon, label, value, color }) => (
+  <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg hover:-translate-y-1 transition-transform duration-300">
+    <div className="flex items-center justify-between mb-4">
+      <div className={`p-3 rounded-xl ${color}`}>{icon}</div>
+      <span className="text-xl font-bold text-white truncate max-w-[150px]" title={value}>{value || 0}</span>
+    </div>
+    <p className="text-gray-400 font-medium">{label}</p>
+  </div>
+);
 
-export default SubjectInformation
+export default SubjectInformation;
