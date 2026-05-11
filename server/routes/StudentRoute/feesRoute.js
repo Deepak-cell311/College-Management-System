@@ -1,5 +1,5 @@
 const express = require('express')
-const {FeeDataCreation, ShowFees} = require("../controllers/fees-controller")
+const {FeeDataCreation, ShowFees} = require("../../controllers/StudentController/fees-controller")
 const router = express.Router()
 
 router.post('/Fee/', FeeDataCreation)

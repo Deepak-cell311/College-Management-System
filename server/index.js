@@ -4,19 +4,21 @@ const mongoose = require("mongoose")
 const dotenv = require("dotenv")
 const bodyParser = require("body-parser");
 const app = express()
-const adminRoute = require("./routes/adminRoute.js")
-const complainRoute = require("./routes/complainRoute.js")
-const noticeRoute = require("./routes/noticeRoute.js")
-const sclassRoute = require("./routes/sclassRoute.js")
-const studentRoute = require("./routes/studentRoute.js")
-const subjectRoute = require("./routes/subjectRoute.js")
-const teacherRoute = require("./routes/teacherRoute.js")
-const feesRoute = require("./routes/feesRoute.js")
-const paymentRoute = require("./routes/paymentRoute.js")
+const adminRoute = require("./routes/AdminRoute/adminRoute.js")
+const complainRoute = require("./routes/StudentRoute/complainRoute.js")
+const noticeRoute = require("./routes/AdminRoute/noticeRoute.js")
+const sclassRoute = require("./routes/StudentRoute/sclassRoute.js")
+const studentRoute = require("./routes/StudentRoute/studentRoute.js")
+const subjectRoute = require("./routes/TeacherRoute/subjectRoute.js")
+const teacherRoute = require("./routes/TeacherRoute/teacherRoute.js")
+const feesRoute = require("./routes/StudentRoute/feesRoute.js")
+const paymentRoute = require("./routes/AdminRoute/paymentRoute.js")
 const fileUpload = require("express-fileupload")
 const cloudinary = require('cloudinary');
 const PORT = process.env.PORT || 5000
-const job = require("./lib/cron.js")
+const job = require("./lib/cron.js");
+const checkRole = require("./lib/middleware-role.js");
+const verifyToken = require("./lib/middleware-tokenVerify.js");
 
 dotenv.config();
 

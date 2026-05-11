@@ -1,6 +1,6 @@
 const express = require('express');
-const FeeSchema = require('../models/feesSchema');
-const sclassSchema = require('../models/sclassSchema');
+const FeeSchema = require('../../models/StudentModel/feesSchema');
+const sclassSchema = require('../../models/StudentModel/sclassSchema');
 
 
 const FeeDataCreation = async (req, res) => {

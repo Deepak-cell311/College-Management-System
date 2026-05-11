@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { GraduationCap, Users, BookOpen, TrendingUp } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
   return (
@@ -44,6 +45,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           >
+            <Link to="/welcome">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -51,6 +53,8 @@ export default function Hero() {
             >
               Get Started
             </motion.button>
+            </Link>
+            <Link to="/welcome">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -58,6 +62,7 @@ export default function Hero() {
             >
               Schedule Demo
             </motion.button>
+            </Link>
           </motion.div>
 
           <motion.div

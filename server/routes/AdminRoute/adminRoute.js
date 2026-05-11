@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { adminLogIn, deleteAdmin, getAdminDetail, updateAdmin, uploadProfileImage } = require('../controllers/admin-controller.js');
+const { adminLogIn, deleteAdmin, getAdminDetail, updateAdmin, uploadProfileImage } = require('../../controllers/AdminController/admin-controller.js');
 
 router.post('/AdminLogin', adminLogIn);
 router.get("/Admin/:id", getAdminDetail);

@@ -1,14 +1,15 @@
 const dotenv = require('dotenv');
 dotenv.config();
-const bcrypt = require('bcrypt');
-const Admin = require('../models/adminSchema.js');
-const Sclass = require('../models/sclassSchema.js');
-const Student = require('../models/studentSchema.js');
-const Teacher = require('../models/teacherSchema.js');
-const Subject = require('../models/subjectSchema.js');
-const Notice = require('../models/noticeSchema.js');
-const Complain = require('../models/complainSchema.js');
+const bcrypt = require('bcryptjs');
+const Admin = require('../../models/AdminModel/adminSchema.js');
+const Sclass = require('../../models/StudentModel/sclassSchema.js');
+const Student = require('../../models/StudentModel/studentSchema.js');
+const Teacher = require('../../models/TeacherModel/teacherSchema.js');
+const Subject = require('../../models/TeacherModel/subjectSchema.js');
+const Notice = require('../../models/AdminModel/noticeSchema.js');
+const Complain = require('../../models/StudentModel/complainSchema.js');
 const cloudinary = require('cloudinary').v2;
+const jwt = require("jsonwebtoken");
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -31,7 +32,13 @@ const adminLogIn = async (req, res) => {
             return res.status(401).json({ message: "Invalid password" });   // 401 is for unauthorize access
         }
         admin[0].password = undefined; // Remove password from the response
-        return res.status(200).json(admin[0]); // Send the admin details without the password
+        admin[0].password = undefined; // Remove password from the response
+        const token = jwt.sign(
+            { email: admin[0].email, role: "admin" }, // Payload
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        )
+        return res.status(200).json({ admin: admin[0], token }); // Send the admin details without the password
     } catch (error) {
         return res.status(500).json({ message: "Server error", error: error.message });
     }

@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { sclassCreate, sclassList, deleteSclass, deleteSclasses, getSclassDetail, getSclassStudents } = require('../controllers/sclass-controller.js');
+const { sclassCreate, sclassList, deleteSclass, deleteSclasses, getSclassDetail, getSclassStudents } = require('../../controllers/StudentController/sclass-controller.js');
 
 router.post('/SclassCreate', sclassCreate);
 router.get('/SclassList/', sclassList);

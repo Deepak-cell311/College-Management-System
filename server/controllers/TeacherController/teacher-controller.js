@@ -1,8 +1,9 @@
-const bcrypt = require('bcrypt');
-const Teacher = require('../models/teacherSchema.js');
-const Subject = require('../models/subjectSchema.js');
-const Sclass = require("../models/sclassSchema.js")
+const bcrypt = require('bcryptjs');
+const Teacher = require('../../models/TeacherModel/teacherSchema.js');
+const Subject = require('../../models/TeacherModel/subjectSchema.js');
+const Sclass = require("../../models/StudentModel/sclassSchema.js")
 const cloudinary = require("cloudinary").v2
+const jwt = require("jsonwebtoken");
 
 const teacherRegister = async (req, res) => {
     const { name, email, password, role, teacherSubject, teacherSclass } = req.body;
@@ -41,7 +42,13 @@ const teacherLogIn = async (req, res) => {
                 teacher = await teacher.populate("teachSubject", "subName sessions")
                 teacher = await teacher.populate("teachSclass", "sclassName")
                 teacher.password = undefined;
-                res.send(teacher);
+                teacher.password = undefined;
+                const token = jwt.sign(
+                    { email: teacher.email, role: "teacher" },
+                    process.env.JWT_SECRET,
+                    { expiresIn: "1h" }
+                );
+                res.send({ teacher, token });
             } else {
                 res.send({ message: "Invalid password" });
             }

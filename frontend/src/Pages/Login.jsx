@@ -105,7 +105,7 @@ const Welcome = () => {
           Dive into a sleek, seamless experience that’s all about you!
         </p>
         <button onClick={handleProceed} className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out">
-          Get Started
+          Go to Dashboard
         </button>
       </div>
     </>

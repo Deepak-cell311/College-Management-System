@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { subjectCreate, classSubjects, deleteSubjectsByClass, getSubjectDetail, deleteSubject, freeSubjectList, allSubjects } = require('../controllers/subject-controller.js');
+const { subjectCreate, classSubjects, deleteSubjectsByClass, getSubjectDetail, deleteSubject, freeSubjectList, allSubjects } = require('../../controllers/TeacherController/subject-controller.js');
 
 router.post('/SubjectCreate/:id', subjectCreate);           // done
 router.get('/AllSubjects', allSubjects);                    // done

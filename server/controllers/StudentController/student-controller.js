@@ -1,8 +1,14 @@
-const bcrypt = require('bcrypt');
-const Student = require('../models/studentSchema.js');
-const Subject = require('../models/subjectSchema.js');
-const Sclass = require('../models/sclassSchema.js');
+const dotenv = require("dotenv")
+dotenv.config()
+const bcrypt = require('bcryptjs');
+const Student = require('../../models/StudentModel/studentSchema.js');
+const Subject = require('../../models/TeacherModel/subjectSchema.js');
+const Sclass = require('../../models/StudentModel/sclassSchema.js');
 const cloudinary = require('cloudinary').v2
+const NodeCache = require("node-cache")
+const jwt = require("jsonwebtoken")
+
+const myCache = new NodeCache({stdTTL: 3000})
 
 const studentRegister = async (req, res) => {
     try {
@@ -39,15 +45,22 @@ const studentLogIn = async (req, res) => {
             const validated = await bcrypt.compare(req.body.password, student.password);
             if (validated) {
                 student = await student.populate("sclassName", "sclassName")
-                student.password = undefined;
-                student.examResult = undefined;
-                student.attendance = undefined;
-                res.send(student);
+
+                const safeStudent = student.toObject();
+                delete safeStudent.password;
+                delete safeStudent.examResult
+                delete safeStudent.attendance
+                const token = jwt.sign(
+                    {name: req.body.name, rollNum: req.body.rollNum, role: "student"},
+                    process.env.JWT_SECRET,
+                    {expiresIn: "1h"}
+                )
+                return res.status(201).json({message: "Login successful", student: safeStudent, token});
             } else {
-                res.send({ message: "Invalid password" });
+                return res.send({ message: "Invalid password" });
             }
         } else {
-            res.send({ message: "Student not found" });
+            return res.send({ message: "Student not found" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -56,17 +69,47 @@ const studentLogIn = async (req, res) => {
 
 const getStudents = async (req, res) => {
     try {
-        let students = await Student.find().populate("sclassName", "sclassName");
+        // 1. Setup Pagination
+        const page = parseInt(req.query.page) || 1
+        const limit = parseInt(req.query.limit) || 10
+
+        // Implement cacheing
+        const cacheKey = `student_page_${page}_limit_to_${limit}`
+
+        // 1. If cache data is present
+        if (myCache.has(cacheKey)) {
+            console.log("Cache data is serving")
+            return res.json(myCache.get(cacheKey))
+        }
+
+        // Skip pages
+        const skipPage = (page - 1) * limit
+
+        // 2. If cache data is not present
+        const [students, total] = await Promise.all([
+            Student.find().populate("sclassName", "sclassName").skip(skipPage).limit(limit),
+            Student.countDocuments()
+        ])
+
         if (students.length > 0) {
             let modifiedStudents = students.map((student) => {
                 return { ...student._doc, password: undefined };
             });
-            res.send(modifiedStudents);
+            const responseData = {
+                modifiedStudents,
+                page,
+                total,
+                totalPage: Math.ceil(total / limit)
+            }
+
+            // 3. Save in cache to use next time
+            myCache.set(cacheKey, responseData)
+            return res.send(responseData);
         } else {
-            res.send({ message: "No students found" });
+            return res.send({ message: "No students found" });
         }
     } catch (err) {
-        res.status(500).json(err);
+        return res.status(500).json(err);
     }
 };
 
@@ -316,17 +359,17 @@ const uploadStudentProfile = async (req, res) => {
             { new: true }
         )
 
-        if(!updatingStudent) { return res.status(400).json({message: "Student not found"})}
+        if (!updatingStudent) { return res.status(400).json({ message: "Student not found" }) }
 
         res.status(200).json({
-            message: "Image upload successfully", 
-            imageUrl: result.secure_url, 
+            message: "Image upload successfully",
+            imageUrl: result.secure_url,
             student: updatingStudent
         })
 
     } catch (error) {
         console.error("Image upload failed", error)
-        res.status(500).json({message: "Image upload failed", error: error.message})
+        res.status(500).json({ message: "Image upload failed", error: error.message })
     }
 }
 module.exports = { studentRegister, studentLogIn, getStudents, getStudentDetail, deleteStudents, classStudents, deleteStudent, updateStudent, studentAttendance, studentAttendances, deleteStudentsByClass, updateExamResult, clearAllStudentsAttendanceBySubject, clearAllStudentsAttendance, removeStudentAttendanceBySubject, removeStudentAttendance, uploadStudentProfile };

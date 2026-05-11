@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { complainCreate, complainList } = require('../controllers/complain-controller.js');
+const { complainCreate, complainList } = require('../../controllers/StudentController/complain-controller.js');
 
 router.post('/ComplainCreate/', complainCreate);
 router.get('/ComplainList/', complainList);
