@@ -493,20 +493,6 @@ Teacher ────────┤                    │
 - Browsers support ES6+ JavaScript
 - MongoDB database has proper indexing
 - Razorpay account configured for payments
-
----
-
-## 15. Future Enhancements
-
-- [ ] Real-time notifications (WebSocket)
-- [ ] Mobile app (React Native)
-- [ ] Advanced analytics dashboard
-- [ ] Machine learning for student performance prediction
-- [ ] Video conferencing integration
-- [ ] Advanced access control (ABAC)
-- [ ] Microservices architecture migration
-- [ ] GraphQL API support
-
 ---
 
 **Document Version:** 1.0  
