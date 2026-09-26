@@ -40,7 +40,6 @@ This College Management System is developed to assist college administrators in 
 - **Additional Libraries**:
   - **JWT**: For secure user authentication
   - **Bcrypt**: For password hashing
-  - **Redis**: Used for robust session and attendance management (in-memory data store)
 
 ---
 
